@@ -1,8 +1,10 @@
-# EcoTrack - Challenge CCR Motiva
+# EcoTrack - Challenge CCR Motiva (Sprint 3)
 
 Bem-vindo ao repositório do **EcoTrack**, uma solução tecnológica desenvolvida para auxiliar a Motiva no monitoramento e gerenciamento inteligente da vegetação presente ao longo das rodovias sob sua concessão.
 
-O projeto foi desenvolvido como parte do Challenge CCR Motiva do curso de Ciência da Computação da FIAP, com o objetivo de aplicar conceitos de desenvolvimento mobile, estruturação de dados, persistência local, visão computacional e apoio à tomada de decisão baseada em dados.
+O projeto foi desenvolvido como parte do Challenge CCR Motiva do curso de Ciência da Computação da FIAP, com o objetivo de aplicar conceitos de desenvolvimento mobile, estruturação de dados, persistência local, visão computacional e apoio à tomada de decisão baseada em dados. 
+
+Nesta **Sprint 3**, entregamos um **Protótipo Funcional Completo**, com todos os fluxos navegáveis, persistência de dados locais e evolução da camada de simulação (mock) cobrindo os cenários completos da solução.
 
 ---
 
@@ -22,7 +24,6 @@ O projeto foi desenvolvido como parte do Challenge CCR Motiva do curso de Ciênc
 A manutenção da vegetação nas rodovias administradas pela Motiva depende atualmente de inspeções presenciais e cronogramas periódicos de roçada.
 
 Embora esse modelo funcione, ele apresenta limitações importantes:
-
 - Dependência de inspeções humanas;
 - Falta de dados atualizados em tempo real;
 - Dificuldade na identificação dos trechos mais críticos;
@@ -30,16 +31,14 @@ Embora esse modelo funcione, ele apresenta limitações importantes:
 - Possibilidade de intervenções desnecessárias ou tardias;
 - Riscos relacionados à segurança viária e à visibilidade da sinalização.
 
-Dessa forma, existe a necessidade de uma solução capaz de monitorar os trechos de forma mais inteligente, permitindo que as equipes atuem de maneira mais eficiente, estratégica e baseada em dados.
+Dessa forma, existe a necessidade de uma solução capaz de monitorar os trechos de forma inteligente, permitindo que as equipes atuem de maneira eficiente, estratégica e baseada em dados.
 
 ---
 
 # Persona
 
 ### Operador de Campo (João Silva)
-
 Responsável por dirigir a frota e realizar a poda juntamente com sua equipe.
-
 Necessita de uma ferramenta simples, intuitiva e eficiente, capaz de funcionar mesmo em ambientes com baixa conectividade, permitindo acesso rápido às informações necessárias para execução da operação.
 
 ---
@@ -62,140 +61,54 @@ Necessita de uma ferramenta simples, intuitiva e eficiente, capaz de funcionar m
 
 ---
 
-# Restrições Técnicas
-
-- As rodovias apresentam áreas com baixa conectividade.
-- O hardware embarcado deve suportar condições adversas de operação.
-- A solução deve respeitar as normas vigentes da ARTESP e ANTT relacionadas à manutenção da vegetação.
-
----
-
 # A Solução e Integração de Hardware (App & Visão Computacional)
 
 O EcoTrack integra um aplicativo mobile com um sistema de visão computacional embarcado em veículos operacionais.
 
 ## Componentes da Solução
-
-### Hardware Embarcado
-
-Dispositivo com câmeras instalado nos veículos da frota responsável pela captura das imagens da vegetação.
-
-### Aplicativo Mobile
-
-Centraliza todas as informações operacionais, permitindo:
-
-- Ativação do monitoramento;
-- Visualização do mapeamento;
-- Recebimento de avisos;
-- Consulta de informações operacionais;
-- Comunicação com assistentes virtuais.
-
-### Camada Inteligente
-
-Responsável por analisar os dados coletados e gerar recomendações para as equipes de campo.
+- **Hardware Embarcado:** Dispositivo com câmeras instalado nos veículos da frota, responsável pela captura das imagens da vegetação.
+- **Aplicativo Mobile:** Centraliza todas as informações, permitindo a ativação do monitoramento, visualização do mapeamento interativo, recebimento de avisos e comunicação via IA.
+- **Camada Inteligente:** Responsável por analisar os dados coletados e gerar recomendações em tempo real para as equipes de campo.
 
 ---
 
-# Descrição do Projeto
+# Funcionalidades Implementadas (Status Atual)
 
-O EcoTrack foi desenvolvido em React Native utilizando Expo Router e possui como objetivo simular o funcionamento completo da solução através de dados mockados.
+## Autenticação ✅
+- Cadastro de usuários, Login e Logout.
+- Persistência de sessão (AsyncStorage).
 
-A aplicação permite que operadores visualizem informações operacionais, acompanhem o monitoramento da vegetação, consultem análises inteligentes e recebam recomendações para atuação nos trechos sob sua responsabilidade.
-
-Toda a lógica da Sprint 2 foi construída utilizando Context API e AsyncStorage, simulando o comportamento futuro do sistema quando integrado aos equipamentos embarcados e APIs externas.
-
----
-
-# Funcionalidades Implementadas
-
-## Autenticação
-
-- Cadastro de usuários;
-- Login;
-- Logout;
-- Persistência de sessão;
-- Alteração de senha.
-
-## Tela Inicial
-
-- Informações da equipe;
-- Ordem de serviço;
-- Trecho atual;
+## Tela Inicial ✅
+- Informações dinâmicas da equipe, OS e trecho atual.
 - Acesso rápido às funcionalidades principais.
 
-## Monitoramento
+## Mapeamento Interativo (Rodoanel Mário Covas) ✅
+- **Novo na Sprint 3:** O mapa estático foi substituído por uma interface interativa cobrindo os ~177 km do Rodoanel Mário Covas (SP-021).
+- Pontos tocáveis divididos em 4 trechos (Oeste, Sul, Leste e Norte).
+- Classificação automática da vegetação e exibição de cards dinâmicos:
+  - 🟢 **Verde:** abaixo de 10 cm
+  - 🟡 **Amarelo:** entre 10 cm e 30 cm
+  - 🔴 **Vermelho:** acima de 30 cm
+- Geração de Resumo Inteligente do trecho via integração com IA/Mock.
 
-- Ativação do monitoramento;
-- Simulação da visão computacional;
-- Exibição de vídeo simulando captura do veículo;
-- Status operacional.
+## Avisos & Notificações ✅
+- **Novo na Sprint 3:** Persistência de leitura. Avisos clicados são marcados como lidos e salvos no `AsyncStorage`, sobrevivendo a reinicializações do app.
+- Geração automática de notificações vinculadas ao status de monitoramento.
 
-## Mapeamento
-
-- Mapa interativo (`react-native-maps`) cobrindo o Rodoanel Mário Covas completo;
-- Filtro por trecho (Todos, Oeste, Sul, Leste, Norte);
-- Classificação automática dos pontos monitorados:
-  - 🟢 Vegetação abaixo de 10 cm
-  - 🟡 Vegetação entre 10 cm e 30 cm
-  - 🔴 Vegetação acima de 30 cm
-- Detalhe do ponto (km, altura, status e recomendação) ao tocar em um marcador;
-- Recomendações operacionais geradas pela IA;
-- Simulação de atualização dos pontos, incluindo cenários de trecho vazio e falha de carregamento.
-
-## Avisos
-
-- Visualização de avisos operacionais;
-- Geração automática de notificações;
-- Atualização dinâmica dos dados.
-
-## Assistente de Dúvidas
-
-- Chat operacional;
-- Respostas automáticas simuladas.
-
-## Assistente de Cancelamento
-
-- Registro de impedimentos operacionais;
-- Comunicação de problemas de execução;
-- Geração automática de avisos.
-
-## Perfil
-
-- Dados do operador;
-- Alteração de senha;
-- Informações pessoais;
-- Área de suporte.
+## Assistente de Dúvidas & Cancelamento ✅
+- Chat operacional inteligente.
+- Registro de impedimentos com geração automática de avisos para o sistema central.
 
 ---
 
-# Descrição dos Mocks Utilizados
+# Mock de Dados e Justificativas Técnicas
 
-Para esta Sprint foi criada uma camada de dados mockados utilizando Context API.
+Nesta etapa, focamos em cobrir todos os cenários da solução (sucesso, listas vazias, dados pendentes e erros) através de uma arquitetura baseada em Context API e AsyncStorage.
 
-O objetivo é simular o comportamento futuro da aplicação sem depender de APIs externas.
-
-## Mock de Usuário
-
-Simula:
-
-- Operador logado;
-- Equipe responsável;
-- Ordem de serviço;
-- Horário de atuação;
-- Trecho atual.
-
-## Mock de Mapeamento
-
-O mock cobre o **Rodoanel Mário Covas (SP-021) completo**, dividido nos 4 trechos reais da rodovia:
-
-- **Trecho Oeste** (~32 km) — São Paulo, Barueri, Carapicuíba, Osasco, Cotia e Embu das Artes;
-- **Trecho Sul** (~61 km) — do entroncamento com a Régis Bittencourt (Embu das Artes) até a Av. Papa João XXIII em Mauá, passando por Itapecerica da Serra, São Paulo, São Bernardo do Campo e Ribeirão Pires;
-- **Trecho Leste** (~43,5 km) — liga o Trecho Sul à Rodovia Ayrton Senna e à Presidente Dutra, próximo ao Aeroporto de Guarulhos;
-- **Trecho Norte** (~44 km) — ligaria a Dutra ao Trecho Oeste, passando perto de Guarulhos e da Fernão Dias.
-
-Os pontos são gerados a cada ~750 m ao longo dos quatro trechos (cerca de 243 pontos no total), formando visualmente o traçado da via só com a densidade das bolinhas — sem nenhuma linha desenhada por cima. No mapa nativo, cada ponto é um `Marker` do `react-native-maps` com uma bolinha customizada de tamanho fixo em pixels, para ficar sempre visível na tela independentemente do nível de zoom (diferente de um `Circle`, cujo raio é em metros reais e desaparece quando o mapa é visto de longe). Cada ponto expõe: km, latitude/longitude, altura da vegetação (cm), status (verde/amarelo/vermelho) e recomendação gerada pela IA. Os dados de km, coordenadas e altura são simulados porque, no cenário real, viriam do hardware embarcado nos veículos — a mesma justificativa já usada no projeto para a câmera e a geolocalização.
-
-O **Trecho Norte é representado com cobertura parcial** no mock: parte dos pontos possui leitura completa e o restante aparece com status "aguardando escaneamento" (sem altura ou recomendação), refletindo que esse trecho do Rodoanel ainda está em obras na vida real.
+### Mock de Mapeamento (Rodoanel Mário Covas)
+O mock do mapa agora reflete o **Rodoanel Mário Covas completo**, dividido em seus quatro trechos reais. 
+- **Justificativa de Mock:** Os dados de quilometragem, coordenadas (latitude/longitude) e altura da vegetação são simulados no aplicativo porque, no cenário arquitetural real, essas informações **viriam do hardware embarcado nos veículos** (sensores e GPS do equipamento de visão computacional), e não do dispositivo móvel do operador.
+- **Trecho Norte (Cobertura Parcial):** Para cumprir o requisito de fluxos alternativos, o Trecho Norte foi mockado intencionalmente com pontos de status "aguardando escaneamento" ou sem dado de altura. Isso reflete fielmente a realidade da rodovia (que ainda possui obras) e simula o estado do sistema quando um trecho possui dados pendentes de leitura.
 
 ### Estados cobertos pelo mock
 
@@ -206,70 +119,31 @@ O **Trecho Norte é representado com cobertura parcial** no mock: parte dos pont
 | Vazio | Ao acionar "Atualizar pontos do trecho", o mock pode simular um trecho sem nenhum ponto escaneado |
 | Erro | Ao acionar "Atualizar pontos do trecho", o mock pode simular falha ao carregar os dados, com botão de tentar novamente |
 
-## Mock de Monitoramento
-
-Simula:
-
-- Ativação da visão computacional;
-- Status operacional;
-- Dados provenientes do veículo.
-
-## Mock de Avisos
-
-Simula:
-
-- Alertas operacionais;
-- Notificações geradas automaticamente;
-- Histórico de avisos.
-
-## Mock de Chats
-
-Simula:
-
-- Conversas com os assistentes;
-- Respostas automáticas;
-- Registro de cancelamentos;
-- Fluxos de suporte.
-
-## Exemplos de Fluxos Simulados
-
-### Monitoramento
-
-Usuário ativa o monitoramento
-
-↓
-
-Status é atualizado
-
-↓
-
-Novo aviso é criado
-
-↓
-
-Tela de avisos é atualizada automaticamente
-
-### Cancelamento
-
-Usuário registra um impedimento
-
-↓
-
-Assistente processa a informação
-
-↓
-
-Resposta automática é gerada
-
-↓
-
-Novo aviso operacional é criado
+### Integração IA e Fallbacks
+O assistente de chat e os resumos de mapa foram arquitetados para consumir a API oficial do Google Gemini. Devido a limites e alta demanda (*high demand*) temporária nas contas de camada gratuita do provedor, implementamos fallbacks (rotas alternativas) de mock com DummyJSON. Isso garante que o fluxo do aplicativo nunca trave durante a operação em campo, mantendo a responsabilidade do software.
 
 ---
 
-# Protótipo Mobile (Figma)
+# Testes Manuais (Sprint 3)
 
-https://www.figma.com/design/TT7nBNLKKnz3fK0f7vxFFX/SPRINT_CROSS-PLATFORM?node-id=0-1&t=ZFpQWhvOqdRo8JIx-1
+Foram executados testes manuais para garantir que os fluxos principais e alternativos da aplicação não apresentem falhas de navegação ou interface.
+
+| Cenário Testado | Resultado Esperado | Resultado Obtido | Status |
+| :--- | :--- | :--- | :--- |
+| **Persistência de Notificações** (Tocar num aviso não lido e reiniciar o app) | A opacidade do aviso deve reduzir (marcado como lido) e o estado deve ser mantido após reiniciar o aplicativo. | O `AsyncStorage` gravou a alteração perfeitamente; o aviso permaneceu como lido. | ✅ Passou |
+| **Navegação do Mapa - Troca de Trecho** (Alternar do Trecho Sul para o Oeste) | O mapa deve recarregar a lista de pontos instantaneamente mostrando as novas coordenadas e quilometragens. | Os pontos foram atualizados corretamente sem travamentos na UI. | ✅ Passou |
+| **Mapa - Dados Pendentes** (Acessar o Trecho Norte) | Pontos sem leitura de altura da grama devem exibir o status "Aguardando escaneamento" sem quebrar a aplicação (undefined). | O card interativo exibiu o alerta de dados pendentes corretamente. | ✅ Passou |
+| **Fallback do Assistente** (Enviar mensagem no chat com a API oficial em alta demanda) | O app deve interceptar o erro e exibir a resposta de fallback instantânea do mock genérico, sem apresentar tela de crash. | O bot respondeu através do fallback local com a notificação de instabilidade externa. | ✅ Passou |
+| **Monitoramento e Integração** (Iniciar gravação e checar a tela de avisos) | O estado global deve ativar a visão computacional e gerar automaticamente um aviso não lido no painel de notificações. | A câmera simulada ativou e a notificação foi injetada no `MockDataContext`. | ✅ Passou |
+
+---
+
+# Pendências e Plano de Ajustes (Sprint 4)
+
+Para a entrega final na Sprint 4, as seguintes melhorias estão planejadas:
+1. **Estabilização de APIs:** Substituir permanentemente os mocks de fallback pela conexão final da IA, caso o provisionamento da conta Google Cloud normalize.
+2. **Refinamento de UI/UX:** Aplicar micro-interações e ajustes finos de responsividade para garantir que a interface fique perfeita em diferentes proporções de tela.
+3. **Revisão de Código:** Otimização dos hooks do React para evitar renderizações desnecessárias ao transitar entre as abas principais.
 
 ---
 
@@ -333,19 +207,7 @@ assets/
 
 # Como Rodar o Projeto
 
-Siga as instruções abaixo para configurar o ambiente e executar o projeto em sua máquina.
-
-## Pré-requisitos
-
-Antes de começar, certifique-se de possuir instalado:
-
-- Node.js (versão 18 ou superior)
-- npm
-- Git
-- Expo Go (Android ou iOS)
-
-## Clonar o Repositório
-
+1. Clone o repositório:
 ```bash
 git clone https://github.com/jumarques03/sprint02-cpad
 ```

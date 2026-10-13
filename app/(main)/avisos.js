@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  TouchableOpacity
 } from "react-native";
 
 import Header from "../../components/Header";
@@ -12,7 +13,8 @@ import Warning from "../../components/Warning";
 import { useMockData } from "../../context/MockDataContext";
 
 export default function Avisos() {
-  const { notifications } = useMockData();
+  // Agora puxamos também a função marcarComoLida do contexto
+  const { notifications, marcarComoLida } = useMockData();
 
   return (
     <View style={styles.container}>
@@ -35,13 +37,20 @@ export default function Avisos() {
           />
         ) : (
           notifications.map((notification) => (
-            <Warning
+            <TouchableOpacity
               key={notification.id}
-              title={notification.title}
-              message={notification.message}
-              date={notification.date}
-              hour={notification.hour}
-            />
+              activeOpacity={0.7}
+              onPress={() => marcarComoLida(notification.id)}
+              // Reduz a opacidade caso o aviso já tenha sido lido para dar feedback visual
+              style={{ opacity: notification.read ? 0.6 : 1, marginBottom: 12 }} 
+            >
+              <Warning
+                title={notification.title}
+                message={notification.message}
+                date={notification.date}
+                hour={notification.hour}
+              />
+            </TouchableOpacity>
           ))
         )}
       </ScrollView>

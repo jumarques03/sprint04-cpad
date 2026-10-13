@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { mockUser } from "../data/mockUser";
 import { mockMap } from "../data/mockMap";
 import { mockMonitoring } from "../data/mockMonitoring";
-import { mockChats } from "../data/mockChats";
 import { mockNotifications } from "../data/mockNotifications";
 import { STATUS_AGUARDANDO } from "../utils/vegetationStatus";
 
@@ -13,8 +13,26 @@ export function MockDataProvider({ children }) {
   const [user, setUser] = useState(mockUser);
   const [mapData, setMapData] = useState(mockMap);
   const [monitoring, setMonitoring] = useState(mockMonitoring);
-  const [chats, setChats] = useState(mockChats);
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const [notifications, setNotifications] = useState([]);
+
+  // 1. Carrega as notificações persistidas ao iniciar a aplicação
+  useEffect(() => {
+    carregarNotificacoes();
+  }, []);
+
+  const carregarNotificacoes = async () => {
+    try {
+      const stored = await AsyncStorage.getItem("@eco_notifications");
+      if (stored !== null) {
+        setNotifications(JSON.parse(stored));
+      } else {
+        setNotifications(mockNotifications);
+        await AsyncStorage.setItem("@eco_notifications", JSON.stringify(mockNotifications));
+      }
+    } catch (error) {
+      console.error("Erro ao carregar notificações", error);
+    }
+  };
 
   const iniciarMonitoramento = () => {
     setMonitoring((prev) => ({
@@ -44,7 +62,8 @@ export function MockDataProvider({ children }) {
     });
   };
 
-  const adicionarAviso = ({ title, message }) => {
+  // 2. Atualiza a função para guardar o novo aviso no AsyncStorage
+  const adicionarAviso = async ({ title, message }) => {
     const novoAviso = {
         id: Date.now(),
         title,
@@ -57,73 +76,22 @@ export function MockDataProvider({ children }) {
         read: false,
     };
 
-    setNotifications((prev) => [novoAviso, ...prev]);
-  };
-
-  const enviarMensagemChat = (tipoChat, textoUsuario) => {
-    if (!textoUsuario.trim()) return;
-
-    const horario = new Date().toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
+    setNotifications((prev) => {
+      const atualizadas = [novoAviso, ...prev];
+      AsyncStorage.setItem("@eco_notifications", JSON.stringify(atualizadas));
+      return atualizadas;
     });
-
-    const mensagemUsuario = {
-      id: Date.now(),
-      type: "user",
-      message: textoUsuario,
-      time: horario,
-    };
-
-    const respostaBot = {
-      id: Date.now() + 1,
-      type: "bot",
-      message: gerarRespostaMockada(tipoChat, textoUsuario),
-      time: horario,
-    };
-
-    setChats((prev) => ({
-      ...prev,
-      [tipoChat]: [
-        ...prev[tipoChat],
-        mensagemUsuario,
-        respostaBot,
-      ],
-    }));
   };
 
-  const gerarRespostaMockada = (tipoChat, texto) => {
-    const textoLower = texto.toLowerCase();
-
-    if (tipoChat === "cancelamento") {
-        adicionarAviso({
-        title: "Solicitação de cancelamento enviada",
-        message: "O motivo informado foi registrado e enviado para análise.",
-        });
-
-        return "Cancelamento registrado com sucesso. O status foi enviado para análise da equipe responsável.";
-    }
-
-    if (textoLower.includes("monitoramento")) {
-        return chats.respostas.monitoramento;
-    }
-
-    if (
-        textoLower.includes("cancelamento") ||
-        textoLower.includes("cancelar")
-    ) {
-        return chats.respostas.cancelamento;
-    }
-
-    if (
-        textoLower.includes("mapa") ||
-        textoLower.includes("trecho") ||
-        textoLower.includes("km")
-    ) {
-        return chats.respostas.mapa;
-    }
-
-    return chats.respostas.default;
+  // 3. Nova função exposta para os ecrãs marcarem notificações como lidas
+  const marcarComoLida = async (id) => {
+    setNotifications((prev) => {
+      const atualizadas = prev.map(notif =>
+        notif.id === id ? { ...notif, read: true } : notif
+      );
+      AsyncStorage.setItem("@eco_notifications", JSON.stringify(atualizadas));
+      return atualizadas;
+    });
   };
 
   const atualizarPontosTrecho = (trechoKey) => {
@@ -166,19 +134,17 @@ export function MockDataProvider({ children }) {
     user,
     mapData,
     monitoring,
-    chats,
     notifications,
 
     setUser,
     setMapData,
     setMonitoring,
-    setChats,
     setNotifications,
 
     iniciarMonitoramento,
     encerrarMonitoramento,
     adicionarAviso,
-    enviarMensagemChat,
+    marcarComoLida,
     atualizarPontosTrecho,
   };
 
