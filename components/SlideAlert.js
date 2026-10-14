@@ -1,5 +1,6 @@
 import React from "react";
-import { Text, StyleSheet, Animated, SafeAreaView, Platform } from "react-native";
+import { Text, StyleSheet, Animated, Platform } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SlideAlert({ slideAnim, message, backgroundColor = '#00C853' }) {
   if (!message) return null;
