@@ -90,8 +90,7 @@ export default function Inicio() {
                 title="CONCLUIR"
                 icon="checkmark-circle"
                 color="#0E7C93"
-                // TODO: concluir a ordem de serviço (apenas frontend por enquanto)
-                onPress={() => {}}
+                onPress={() => router.push("/(main)/concluir-ordem")}
               />
             </View>
 

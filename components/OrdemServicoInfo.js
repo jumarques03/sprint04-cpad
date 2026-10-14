@@ -27,8 +27,7 @@ export default function OrdemServicoInfo({ ordem, team }) {
       </View>
 
       <InfoLinha icon="construct-outline" label="Tipo de serviço" value={ordem.tipo} />
-      <InfoLinha icon="location-outline" label="Endereço" value={ordem.endereco} />
-      <InfoLinha icon="speedometer-outline" label="Km" value={ordem.km} />
+      <InfoLinha icon="location-outline" label="Localização" value={ordem.endereco} />
       <InfoLinha icon="time-outline" label="Horário" value={ordem.horario} />
       <InfoLinha icon="people-outline" label="Equipe" value={team} />
 

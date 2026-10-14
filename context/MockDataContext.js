@@ -6,6 +6,7 @@ import { mockMap } from "../data/mockMap";
 import { mockMonitoring } from "../data/mockMonitoring";
 import { mockNotifications } from "../data/mockNotifications";
 import { mockOrdemServico } from "../data/mockOrdemServico";
+import { aplicarRocadas, descreverLocalizacao } from "../utils/ordemServico";
 import { STATUS_AGUARDANDO } from "../utils/vegetationStatus";
 
 const MockDataContext = createContext();
@@ -15,12 +16,14 @@ export function MockDataProvider({ children }) {
   const [mapData, setMapData] = useState(mockMap);
   const [monitoring, setMonitoring] = useState(mockMonitoring);
   const [notifications, setNotifications] = useState([]);
-  const [ordemServico, setOrdemServico] = useState(mockOrdemServico);
+  const [ordemServico, setOrdemServico] = useState(null);
+  const [ordensConcluidas, setOrdensConcluidas] = useState([]);
 
   // 1. Carrega as notificações persistidas ao iniciar a aplicação
   useEffect(() => {
     carregarNotificacoes();
     carregarOrdemServico();
+    carregarOrdensConcluidas();
   }, []);
 
   const carregarNotificacoes = async () => {
@@ -39,14 +42,32 @@ export function MockDataProvider({ children }) {
 
   const carregarOrdemServico = async () => {
     try {
-      const stored = await AsyncStorage.getItem("@eco_ordem_servico");
+      const stored = await AsyncStorage.getItem("@eco_ordem_servico_v2");
       if (stored !== null) {
         setOrdemServico(JSON.parse(stored));
       } else {
-        await AsyncStorage.setItem("@eco_ordem_servico", JSON.stringify(mockOrdemServico));
+        setOrdemServico(mockOrdemServico);
+        await AsyncStorage.setItem("@eco_ordem_servico_v2", JSON.stringify(mockOrdemServico));
       }
     } catch (error) {
       console.error("Erro ao carregar ordem de serviço", error);
+    }
+  };
+
+  // Roçadas concluídas são reaplicadas sobre o mock do mapa a cada abertura do app
+  const carregarOrdensConcluidas = async () => {
+    try {
+      const stored = await AsyncStorage.getItem("@eco_ordens_concluidas");
+      if (stored !== null) {
+        const concluidas = JSON.parse(stored);
+        setOrdensConcluidas(concluidas);
+        setMapData((prev) => ({
+          ...prev,
+          trechos: aplicarRocadas(prev.trechos, concluidas),
+        }));
+      }
+    } catch (error) {
+      console.error("Erro ao carregar ordens concluídas", error);
     }
   };
 
@@ -110,12 +131,14 @@ export function MockDataProvider({ children }) {
     });
   };
 
-  const criarOrdemServico = async ({ tipo, endereco, km, horario, descricao }) => {
+  const criarOrdemServico = async ({ tipo, trechoId, kmInicial, kmFinal, horario, descricao }) => {
     const novaOrdem = {
       numero: Date.now().toString().slice(-4),
       tipo,
-      endereco,
-      km,
+      trechoId,
+      kmInicial,
+      kmFinal,
+      endereco: descreverLocalizacao(mapData, trechoId, kmInicial, kmFinal),
       horario,
       descricao,
       status: "Pendente",
@@ -124,7 +147,7 @@ export function MockDataProvider({ children }) {
     setOrdemServico(novaOrdem);
 
     try {
-      await AsyncStorage.setItem("@eco_ordem_servico", JSON.stringify(novaOrdem));
+      await AsyncStorage.setItem("@eco_ordem_servico_v2", JSON.stringify(novaOrdem));
     } catch (error) {
       console.error("Erro ao salvar ordem de serviço", error);
     }
@@ -132,6 +155,43 @@ export function MockDataProvider({ children }) {
     adicionarAviso({
       title: "Ordem de serviço criada",
       message: `A ordem de serviço #${novaOrdem.numero} foi criada para a ${user.equipe}.`,
+    });
+  };
+
+  // Conclui a ordem ativa: atualiza os pontos do mapa dentro da faixa da ordem
+  // com a altura final, guarda no histórico e deixa a ordem ativa vazia.
+  const concluirOrdemServico = async ({ alturaInicial, alturaFinal, observacoes, fotoUri }) => {
+    if (!ordemServico) return;
+
+    const registro = {
+      ...ordemServico,
+      status: "Concluída",
+      alturaInicial,
+      alturaFinal,
+      observacoes,
+      fotoUri,
+      concluidaEm: new Date().toISOString(),
+    };
+
+    const concluidas = [registro, ...ordensConcluidas];
+
+    setOrdensConcluidas(concluidas);
+    setMapData((prev) => ({
+      ...prev,
+      trechos: aplicarRocadas(prev.trechos, [registro]),
+    }));
+    setOrdemServico(null);
+
+    try {
+      await AsyncStorage.setItem("@eco_ordens_concluidas", JSON.stringify(concluidas));
+      await AsyncStorage.setItem("@eco_ordem_servico_v2", JSON.stringify(null));
+    } catch (error) {
+      console.error("Erro ao salvar ordem concluída", error);
+    }
+
+    adicionarAviso({
+      title: "Ordem de serviço concluída",
+      message: `A ordem #${registro.numero} foi concluída. A vegetação do Km ${registro.kmInicial} ao Km ${registro.kmFinal} foi atualizada no mapa.`,
     });
   };
 
@@ -159,11 +219,17 @@ export function MockDataProvider({ children }) {
                 : { ...ponto, timestamp: agora }
             );
 
+      // Pontos já roçados continuam com a leitura pós-roçada
+      const trechoAtualizado = aplicarRocadas(
+        { [trechoKey]: { ...trechoAtual, pontos: novosPontos } },
+        ordensConcluidas
+      )[trechoKey];
+
       return {
         ...prev,
         trechos: {
           ...prev.trechos,
-          [trechoKey]: { ...trechoAtual, pontos: novosPontos },
+          [trechoKey]: trechoAtualizado,
         },
       };
     });
@@ -177,6 +243,7 @@ export function MockDataProvider({ children }) {
     monitoring,
     notifications,
     ordemServico,
+    ordensConcluidas,
 
     setUser,
     setMapData,
@@ -188,6 +255,7 @@ export function MockDataProvider({ children }) {
     adicionarAviso,
     marcarComoLida,
     criarOrdemServico,
+    concluirOrdemServico,
     atualizarPontosTrecho,
   };
 

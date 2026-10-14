@@ -9,20 +9,23 @@ import {
 } from "react-native";
 
 import Header from "../../components/Header";
+import TrechoSelector from "../../components/TrechoSelector";
 import EmptyState from "../../components/EmptyState";
 import OrdemServicoInfo from "../../components/OrdemServicoInfo";
 import { CustomInput, TimeInput } from "../../components/Input";
 import BlueButton from "../../components/BlueButton";
 import { useMockData } from "../../context/MockDataContext";
+import { converterNumero, formatarKm } from "../../utils/ordemServico";
 
 const HORARIO_VALIDO = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 export default function OrdemServico() {
-  const { user, ordemServico, criarOrdemServico } = useMockData();
+  const { user, ordemServico, mapData, criarOrdemServico } = useMockData();
 
   const [tipo, setTipo] = useState("");
-  const [endereco, setEndereco] = useState("");
-  const [km, setKm] = useState("");
+  const [trechoId, setTrechoId] = useState(null);
+  const [kmInicial, setKmInicial] = useState("");
+  const [kmFinal, setKmFinal] = useState("");
   const [horarioInicio, setHorarioInicio] = useState("");
   const [horarioFim, setHorarioFim] = useState("");
   const [descricao, setDescricao] = useState("");
@@ -35,12 +38,30 @@ export default function OrdemServico() {
       novosErros.tipo = "Campo obrigatório";
     }
 
-    if (!endereco.trim()) {
-      novosErros.endereco = "Campo obrigatório";
+    const trecho = trechoId ? mapData.trechos[trechoId] : null;
+    const kmIni = converterNumero(kmInicial);
+    const kmFim = converterNumero(kmFinal);
+
+    if (!trecho) {
+      novosErros.trecho = "Selecione o trecho";
     }
 
-    if (!km.trim()) {
-      novosErros.km = "Campo obrigatório";
+    if (!kmInicial.trim()) {
+      novosErros.kmInicial = "Campo obrigatório";
+    } else if (Number.isNaN(kmIni)) {
+      novosErros.kmInicial = "Km inválido";
+    } else if (trecho && (kmIni < trecho.kmInicial || kmIni > trecho.kmFinal)) {
+      novosErros.kmInicial = `Fora do trecho (${formatarKm(trecho.kmInicial)} a ${formatarKm(trecho.kmFinal)})`;
+    }
+
+    if (!kmFinal.trim()) {
+      novosErros.kmFinal = "Campo obrigatório";
+    } else if (Number.isNaN(kmFim)) {
+      novosErros.kmFinal = "Km inválido";
+    } else if (trecho && (kmFim < trecho.kmInicial || kmFim > trecho.kmFinal)) {
+      novosErros.kmFinal = `Fora do trecho (${formatarKm(trecho.kmInicial)} a ${formatarKm(trecho.kmFinal)})`;
+    } else if (!novosErros.kmInicial && kmFim <= kmIni) {
+      novosErros.kmFinal = "Deve ser maior que o km inicial";
     }
 
     if (!horarioInicio) {
@@ -66,8 +87,9 @@ export default function OrdemServico() {
 
     criarOrdemServico({
       tipo: tipo.trim(),
-      endereco: endereco.trim(),
-      km: km.trim(),
+      trechoId,
+      kmInicial: converterNumero(kmInicial),
+      kmFinal: converterNumero(kmFinal),
       horario: `${horarioInicio} - ${horarioFim}`,
       descricao: descricao.trim(),
     });
@@ -106,22 +128,48 @@ export default function OrdemServico() {
                 erro={erros.tipo}
               />
 
-              <CustomInput
-                label="Rodovia / Endereço"
-                placeholder="Ex: Rodovia BR111"
-                value={endereco}
-                onChangeText={setEndereco}
-                erro={erros.endereco}
-              />
+              <Text style={styles.label}>Rodovia</Text>
+              <Text style={styles.rodovia}>{mapData.rodovia}</Text>
 
-              <CustomInput
-                label="Km"
-                placeholder="Ex: 121"
-                value={km}
-                onChangeText={setKm}
-                keyboardType="numeric"
-                erro={erros.km}
-              />
+              <Text style={styles.label}>Trecho</Text>
+              <View style={styles.trechos}>
+                <TrechoSelector
+                  trechos={Object.values(mapData.trechos)}
+                  trechoSelecionado={trechoId}
+                  onSelecionar={setTrechoId}
+                />
+              </View>
+              {trechoId && (
+                <Text style={styles.dica}>
+                  Km do trecho: {formatarKm(mapData.trechos[trechoId].kmInicial)} a{" "}
+                  {formatarKm(mapData.trechos[trechoId].kmFinal)}
+                </Text>
+              )}
+              {erros.trecho && <Text style={styles.erro}>{erros.trecho}</Text>}
+
+              <View style={styles.horarios}>
+                <View style={styles.horarioCampo}>
+                  <CustomInput
+                    label="Km inicial"
+                    placeholder="Ex: 120"
+                    value={kmInicial}
+                    onChangeText={setKmInicial}
+                    keyboardType="numeric"
+                    erro={erros.kmInicial}
+                  />
+                </View>
+
+                <View style={styles.horarioCampo}>
+                  <CustomInput
+                    label="Km final"
+                    placeholder="Ex: 123"
+                    value={kmFinal}
+                    onChangeText={setKmFinal}
+                    keyboardType="numeric"
+                    erro={erros.kmFinal}
+                  />
+                </View>
+              </View>
 
               <View style={styles.horarios}>
                 <View style={styles.horarioCampo}>
@@ -181,6 +229,37 @@ const styles = StyleSheet.create({
     color: "#202020",
     marginBottom: 7,
     marginTop: 5,
+  },
+
+  label: {
+    color: "#6A6A6A",
+    fontSize: 14,
+    marginBottom: 4,
+    marginTop: 10,
+  },
+
+  rodovia: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#081EAD",
+  },
+
+  trechos: {
+    marginHorizontal: -24,
+  },
+
+  dica: {
+    color: "#6A6A6A",
+    fontSize: 13,
+    marginTop: 6,
+    marginLeft: 4,
+  },
+
+  erro: {
+    color: "#EC4040",
+    marginTop: 4,
+    marginLeft: 4,
+    fontSize: 14,
   },
 
   horarios: {

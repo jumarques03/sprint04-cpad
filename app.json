@@ -25,7 +25,14 @@
       "expo-router",
       "expo-video",
       "expo-status-bar",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "O EcoTrack usa a câmera para registrar a foto que comprova a roçada.",
+          "photosPermission": "O EcoTrack acessa suas fotos para anexar a comprovação da roçada."
+        }
+      ]
     ]
   }
 }

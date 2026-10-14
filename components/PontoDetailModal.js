@@ -61,6 +61,13 @@ export default function PontoDetailModal({ ponto, nomeTrecho, visible, onClose }
                 <Text style={styles.valor}>{horario}</Text>
               </View>
 
+              {ponto.rocadaEm && (
+                <View style={styles.linha}>
+                  <Text style={styles.label}>Roçada concluída em:</Text>
+                  <Text style={styles.valor}>{formatarHorario(ponto.rocadaEm)}</Text>
+                </View>
+              )}
+
               <View style={styles.recomendacaoBox}>
                 <Text style={styles.recomendacaoLabel}>Recomendação EcoTrackAI:</Text>
                 <Text style={styles.recomendacaoTexto}>{ponto.recomendacaoIA}</Text>
