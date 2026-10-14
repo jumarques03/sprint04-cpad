@@ -87,7 +87,14 @@ export default function OrdemServico() {
               <OrdemServicoInfo ordem={ordemServico} team={user.equipe} />
 
               {ordemServico.status === STATUS_ORDEM.PENDENTE && (
-                <BlueButton title="Iniciar execução" onPress={handleIniciar} />
+                <>
+                  <BlueButton title="Iniciar execução" onPress={handleIniciar} />
+
+                  <BorderButton
+                    title="Cancelar ordem"
+                    onPress={() => router.push("/(main)/cancelamento")}
+                  />
+                </>
               )}
 
               {ordemServico.status === STATUS_ORDEM.EM_ANDAMENTO && (

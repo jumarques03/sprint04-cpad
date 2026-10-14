@@ -1,84 +1,139 @@
 import React, { useState } from "react";
 import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import { useRouter } from "expo-router";
 import Header from "../../components/Header";
 import AssistantInfo from "../../components/AssistantInfo";
 import ChatBubble from "../../components/ChatBubble";
 import ChatInput from "../../components/ChatInput";
+import EmptyState from "../../components/EmptyState";
+import OrdemResumoItem from "../../components/OrdemResumoItem";
+import TipoRegistroSelector from "../../components/TipoRegistroSelector";
+import BlueButton from "../../components/BlueButton";
 import { useMockData } from "../../context/MockDataContext";
 
+const horaAtual = () =>
+  new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
 export default function Cancelamento() {
+  const router = useRouter();
   const [message, setMessage] = useState("");
-  const { adicionarAviso } = useMockData();
-  
+  const [tipo, setTipo] = useState(null);
+  const [registrado, setRegistrado] = useState(false);
+  const { ordemServico, registrarImpedimento } = useMockData();
+
   const [chats, setChats] = useState([
     {
       id: "1",
       type: "bot",
-      message: "Olá! Indique o motivo para a solicitação de cancelamento.",
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }
+      message: "Olá! Escolha abaixo o que você precisa registrar na ordem de serviço.",
+      time: horaAtual(),
+    },
   ]);
 
-  const enviarMensagem = () => {
-    if (!message.trim()) return;
+  const adicionarMensagens = (...novas) => setChats((prev) => [...prev, ...novas]);
 
-    const userMsg = {
-      id: Date.now().toString(),
-      type: "user",
-      message: message,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
+  const handleSelecionarTipo = (tipoEscolhido) => {
+    setTipo(tipoEscolhido);
 
-    setChats((prev) => [...prev, userMsg]);
+    adicionarMensagens(
+      { id: `tipo-${Date.now()}`, type: "user", message: tipoEscolhido, time: horaAtual() },
+      {
+        id: `motivo-${Date.now()}`,
+        type: "bot",
+        message: `Certo. Informe o motivo do ${tipoEscolhido.toLowerCase()} da ordem #${ordemServico.numero}.`,
+        time: horaAtual(),
+      }
+    );
+  };
+
+  const enviarMensagem = async () => {
+    if (!message.trim() || !tipo) return;
+
+    const motivo = message.trim();
     setMessage("");
 
-    // Simula o tempo de resposta e regista o aviso globalmente
-    setTimeout(() => {
-      adicionarAviso({
-        title: "Solicitação de cancelamento enviada",
-        message: "O motivo informado foi registado e enviado para análise.",
-      });
+    adicionarMensagens({
+      id: `usuario-${Date.now()}`,
+      type: "user",
+      message: motivo,
+      time: horaAtual(),
+    });
 
-      const botMsg = {
-        id: (Date.now() + 1).toString(),
-        type: "bot",
-        message: "Cancelamento registado com sucesso. O estado foi enviado para análise da equipa responsável.",
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setChats((prev) => [...prev, botMsg]);
-    }, 1000);
+    // Grava na ordem ativa: muda o status, vai para o histórico e avisa o sistema central
+    const resultado = await registrarImpedimento({ tipo, motivo });
+
+    adicionarMensagens({
+      id: `bot-${Date.now()}`,
+      type: "bot",
+      message: resultado.sucesso
+        ? `${tipo} registrado na ordem #${resultado.registro.numero}. O status foi enviado para análise da equipe responsável e você já pode criar uma nova ordem.`
+        : resultado.mensagem,
+      time: horaAtual(),
+    });
+
+    setRegistrado(resultado.sucesso);
   };
 
   return (
     <View style={styles.container}>
-      <Header title="Cancelamento" />
+      <Header title="Impedimento / Cancelamento" />
 
-      <KeyboardAvoidingView
-        style={styles.content}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <ScrollView contentContainerStyle={styles.scroll}>
-          <AssistantInfo
-            title="Assistente de Cancelamento"
-            description="Registe o motivo da interrupção da operação."
+      {!ordemServico && !registrado ? (
+        <View style={styles.vazio}>
+          <EmptyState
+            icon="clipboard-outline"
+            title="Nenhuma ordem ativa"
+            message="Não há uma ordem de serviço para registrar impedimento ou cancelamento. Crie uma ordem primeiro."
           />
 
-          {chats.map((msg) => (
-            <ChatBubble
-              key={msg.id}
-              type={msg.type}
-              message={msg.message}
-              time={msg.time}
+          <BlueButton
+            title="Criar ordem de serviço"
+            onPress={() => router.replace("/(main)/ordem-servico")}
+          />
+        </View>
+      ) : (
+        <KeyboardAvoidingView
+          style={styles.content}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <ScrollView contentContainerStyle={styles.scroll}>
+            <AssistantInfo
+              title="Assistente de Impedimento e Cancelamento"
+              description="Registre na ordem de serviço o que impediu ou cancelou a execução."
             />
-          ))}
-        </ScrollView>
 
-        <ChatInput
-          value={message}
-          onChangeText={setMessage}
-          onSend={enviarMensagem}
-        />
-      </KeyboardAvoidingView>
+            {ordemServico && <OrdemResumoItem ordem={ordemServico} selecionada />}
+
+            {chats.map((msg) => (
+              <ChatBubble
+                key={msg.id}
+                type={msg.type}
+                message={msg.message}
+                time={msg.time}
+              />
+            ))}
+
+            {!tipo && !registrado && (
+              <TipoRegistroSelector onSelecionar={handleSelecionarTipo} />
+            )}
+
+            {registrado && (
+              <BlueButton
+                title="Ver histórico de ordens"
+                onPress={() => router.replace("/(main)/historico-ordens")}
+              />
+            )}
+          </ScrollView>
+
+          {tipo && !registrado && (
+            <ChatInput
+              value={message}
+              onChangeText={setMessage}
+              onSend={enviarMensagem}
+            />
+          )}
+        </KeyboardAvoidingView>
+      )}
     </View>
   );
 }
@@ -86,5 +141,6 @@ export default function Cancelamento() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFFFFF" },
   content: { flex: 1 },
-  scroll: { padding: 18, paddingBottom: 30 }
+  vazio: { padding: 24 },
+  scroll: { padding: 18, paddingBottom: 30 },
 });

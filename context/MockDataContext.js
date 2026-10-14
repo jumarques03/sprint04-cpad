@@ -345,6 +345,43 @@ export function MockDataProvider({ children }) {
     return registro;
   };
 
+  // Impedimento ou cancelamento da ordem ativa: muda o status, guarda o motivo
+  // e move a ordem para o histórico, liberando o operador para uma nova ordem.
+  const registrarImpedimento = async ({ tipo, motivo }) => {
+    if (!ordemServico) {
+      return { sucesso: false, mensagem: "Não há ordem de serviço ativa para registrar." };
+    }
+
+    const cancelamento = tipo === "Cancelamento";
+
+    const registro = {
+      ...ordemServico,
+      status: cancelamento ? STATUS_ORDEM.CANCELADA : STATUS_ORDEM.IMPEDIDA,
+      impedimento: {
+        tipo,
+        motivo,
+        registradoEm: new Date().toISOString(),
+      },
+    };
+
+    const restantes = ordens.filter((ordem) => ordem.id !== registro.id);
+    const historico = [registro, ...ordensConcluidas];
+
+    setOrdens(restantes);
+    setOrdemAtivaId(restantes[0]?.id ?? null);
+    setOrdensConcluidas(historico);
+
+    await salvarOrdens(restantes, restantes[0]?.id ?? null);
+    await salvarHistorico(historico);
+
+    adicionarAviso({
+      title: cancelamento ? "Ordem de serviço cancelada" : "Impedimento registrado",
+      message: `Ordem #${registro.numero}: ${motivo}`,
+    });
+
+    return { sucesso: true, registro };
+  };
+
   const atualizarPontosTrecho = (trechoKey) => {
     const sorteio = Math.random();
     const resultado = sorteio < 0.7 ? "sucesso" : sorteio < 0.85 ? "vazio" : "erro";
@@ -410,6 +447,7 @@ export function MockDataProvider({ children }) {
     selecionarOrdem,
     iniciarOrdemServico,
     concluirOrdemServico,
+    registrarImpedimento,
     atualizarPontosTrecho,
   };
 
