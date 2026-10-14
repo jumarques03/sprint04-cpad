@@ -135,6 +135,36 @@ export function PhoneNumberInput({
   );
 }
 
+export function TimeInput({
+  label,
+  placeholder,
+  value,
+  onChangeText,
+  erro,
+  ...props
+}) {
+  return (
+    <View style={styles.container}>
+      {label && <Text style={styles.tituloInput}>{label}</Text>}
+
+      <View style={styles.inputContainer}>
+        <MaskInput
+          style={[styles.input]}
+          placeholder={placeholder}
+          placeholderTextColor="#868181"
+          value={value}
+          onChangeText={onChangeText}
+          mask={[/\d/, /\d/, ":", /\d/, /\d/]}
+          keyboardType="numeric"
+          {...props}
+        />
+      </View>
+
+      {erro && <Text style={styles.erro}>{erro}</Text>}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     marginBottom: 8,

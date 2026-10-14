@@ -2,10 +2,10 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function EmptyState({ title, message }) {
+export default function EmptyState({ title, message, icon = "map-outline" }) {
   return (
     <View style={styles.container}>
-      <Ionicons name="map-outline" size={40} color="#8A8A8A" />
+      <Ionicons name={icon} size={40} color="#8A8A8A" />
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.message}>{message}</Text>
     </View>

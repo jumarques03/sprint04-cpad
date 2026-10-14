@@ -19,21 +19,21 @@ export default function InfoResume({
       <Text style={styles.info}>
         Hoje:{" "}
         <Text style={styles.highlight}>
-          Ordem de Serviço #{serviceOrder}
+          {serviceOrder ? `Ordem de Serviço #${serviceOrder}` : "Ordem de Serviço a definir"}
         </Text>
       </Text>
 
       <Text style={styles.info}>
         Endereço:{" "}
         <Text style={styles.highlight}>
-          {address}
+          {address || "A definir"}
         </Text>
       </Text>
 
       <Text style={styles.info}>
         Horário:{" "}
         <Text style={styles.highlight}>
-          {schedule}
+          {schedule || "A definir"}
         </Text>
       </Text>
     </View>

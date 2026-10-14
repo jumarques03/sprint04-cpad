@@ -41,7 +41,7 @@ function gerarResumo(nome, pontos) {
 }
 
 export default function Mapa() {
-  const { user, mapData, atualizarPontosTrecho } = useMockData();
+  const { user, ordemServico, mapData, atualizarPontosTrecho } = useMockData();
 
   const [trechoSelecionado, setTrechoSelecionado] = useState("todos");
   const [pontoSelecionado, setPontoSelecionado] = useState(null);
@@ -90,9 +90,9 @@ export default function Mapa() {
         <View style={styles.infoPadding}>
           <InfoResume
             team={user.equipe}
-            serviceOrder={user.ordemServico}
-            address={user.endereco}
-            schedule={user.horario}
+            serviceOrder={ordemServico?.numero}
+            address={ordemServico?.endereco}
+            schedule={ordemServico?.horario}
           />
         </View>
 

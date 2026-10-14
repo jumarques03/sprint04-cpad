@@ -21,6 +21,7 @@ export default function Inicio() {
 
   const {
     user,
+    ordemServico,
     monitoring,
     iniciarMonitoramento,
   } = useMockData();
@@ -65,9 +66,9 @@ export default function Inicio() {
 
             <InfoResume
               team={user.equipe}
-              serviceOrder={user.ordemServico}
-              address={user.endereco}
-              schedule={user.horario}
+              serviceOrder={ordemServico?.numero}
+              address={ordemServico?.endereco}
+              schedule={ordemServico?.horario}
             />
 
             <EnableMonitoring
@@ -82,8 +83,7 @@ export default function Inicio() {
                 title="INICIAR"
                 icon="play-circle"
                 color="#1FA463"
-                // TODO: iniciar a ordem de serviço (apenas frontend por enquanto)
-                onPress={() => {}}
+                onPress={() => router.push("/(main)/ordem-servico")}
               />
 
               <OrderCard

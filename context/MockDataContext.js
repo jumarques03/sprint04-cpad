@@ -5,6 +5,7 @@ import { mockUser } from "../data/mockUser";
 import { mockMap } from "../data/mockMap";
 import { mockMonitoring } from "../data/mockMonitoring";
 import { mockNotifications } from "../data/mockNotifications";
+import { mockOrdemServico } from "../data/mockOrdemServico";
 import { STATUS_AGUARDANDO } from "../utils/vegetationStatus";
 
 const MockDataContext = createContext();
@@ -14,10 +15,12 @@ export function MockDataProvider({ children }) {
   const [mapData, setMapData] = useState(mockMap);
   const [monitoring, setMonitoring] = useState(mockMonitoring);
   const [notifications, setNotifications] = useState([]);
+  const [ordemServico, setOrdemServico] = useState(mockOrdemServico);
 
   // 1. Carrega as notificações persistidas ao iniciar a aplicação
   useEffect(() => {
     carregarNotificacoes();
+    carregarOrdemServico();
   }, []);
 
   const carregarNotificacoes = async () => {
@@ -31,6 +34,19 @@ export function MockDataProvider({ children }) {
       }
     } catch (error) {
       console.error("Erro ao carregar notificações", error);
+    }
+  };
+
+  const carregarOrdemServico = async () => {
+    try {
+      const stored = await AsyncStorage.getItem("@eco_ordem_servico");
+      if (stored !== null) {
+        setOrdemServico(JSON.parse(stored));
+      } else {
+        await AsyncStorage.setItem("@eco_ordem_servico", JSON.stringify(mockOrdemServico));
+      }
+    } catch (error) {
+      console.error("Erro ao carregar ordem de serviço", error);
     }
   };
 
@@ -94,6 +110,31 @@ export function MockDataProvider({ children }) {
     });
   };
 
+  const criarOrdemServico = async ({ tipo, endereco, km, horario, descricao }) => {
+    const novaOrdem = {
+      numero: Date.now().toString().slice(-4),
+      tipo,
+      endereco,
+      km,
+      horario,
+      descricao,
+      status: "Pendente",
+    };
+
+    setOrdemServico(novaOrdem);
+
+    try {
+      await AsyncStorage.setItem("@eco_ordem_servico", JSON.stringify(novaOrdem));
+    } catch (error) {
+      console.error("Erro ao salvar ordem de serviço", error);
+    }
+
+    adicionarAviso({
+      title: "Ordem de serviço criada",
+      message: `A ordem de serviço #${novaOrdem.numero} foi criada para a ${user.equipe}.`,
+    });
+  };
+
   const atualizarPontosTrecho = (trechoKey) => {
     const sorteio = Math.random();
     const resultado = sorteio < 0.7 ? "sucesso" : sorteio < 0.85 ? "vazio" : "erro";
@@ -135,6 +176,7 @@ export function MockDataProvider({ children }) {
     mapData,
     monitoring,
     notifications,
+    ordemServico,
 
     setUser,
     setMapData,
@@ -145,6 +187,7 @@ export function MockDataProvider({ children }) {
     encerrarMonitoramento,
     adicionarAviso,
     marcarComoLida,
+    criarOrdemServico,
     atualizarPontosTrecho,
   };
 
