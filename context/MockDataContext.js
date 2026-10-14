@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { mockUser } from "../data/mockUser";
@@ -12,6 +12,7 @@ import {
   aplicarRocadas,
   descreverLocalizacao,
   migrarOrdensAntigas,
+  sugerirOrdens,
 } from "../utils/ordemServico";
 import { STATUS_AGUARDANDO } from "../utils/vegetationStatus";
 
@@ -20,6 +21,7 @@ const MockDataContext = createContext();
 const CHAVE_ORDENS = "@eco_ordens_v3";
 const CHAVE_HISTORICO = "@eco_ordens_historico_v3";
 const CHAVE_CONTADOR = "@eco_ordem_contador";
+const CHAVE_SUGESTOES = "@eco_sugestoes_notificadas";
 // Chaves de versões anteriores, lidas apenas para migrar os dados
 const CHAVE_ORDEM_V2 = "@eco_ordem_servico_v2";
 const CHAVE_CONCLUIDAS_V2 = "@eco_ordens_concluidas";
@@ -36,6 +38,22 @@ export function MockDataProvider({ children }) {
   const [ordemAtivaId, setOrdemAtivaId] = useState(null);
   const [ordensConcluidas, setOrdensConcluidas] = useState([]);
   const [dadosCarregados, setDadosCarregados] = useState(false);
+  // Chaves das sugestões de OS que já geraram aviso (null até carregar)
+  const [sugestoesNotificadas, setSugestoesNotificadas] = useState(null);
+
+  // RF03: sugestões de OS a partir dos pontos críticos do mapa
+  const sugestoes = useMemo(
+    () =>
+      sugerirOrdens(
+        mapData,
+        ordens.filter(
+          (ordem) =>
+            ordem.status === STATUS_ORDEM.PENDENTE ||
+            ordem.status === STATUS_ORDEM.EM_ANDAMENTO
+        )
+      ),
+    [mapData, ordens]
+  );
 
   const ordemServico =
     ordens.find((ordem) => ordem.status === STATUS_ORDEM.EM_ANDAMENTO) ??
@@ -51,8 +69,43 @@ export function MockDataProvider({ children }) {
   const carregarDados = async () => {
     await carregarNotificacoes();
     await carregarOrdens();
+    await carregarSugestoesNotificadas();
     setDadosCarregados(true);
   };
+
+  const carregarSugestoesNotificadas = async () => {
+    try {
+      const stored = await AsyncStorage.getItem(CHAVE_SUGESTOES);
+      setSugestoesNotificadas(stored !== null ? JSON.parse(stored) : []);
+    } catch (error) {
+      console.error("Erro ao carregar sugestões notificadas", error);
+      setSugestoesNotificadas([]);
+    }
+  };
+
+  // Avisa o operador de sugestões novas, uma única vez para cada faixa
+  useEffect(() => {
+    if (!dadosCarregados || sugestoesNotificadas === null) return;
+
+    const novas = sugestoes.filter(
+      (sugestao) => !sugestoesNotificadas.includes(sugestao.chave)
+    );
+
+    if (novas.length === 0) return;
+
+    const atualizadas = [...sugestoesNotificadas, ...novas.map((sugestao) => sugestao.chave)];
+
+    setSugestoesNotificadas(atualizadas);
+    AsyncStorage.setItem(CHAVE_SUGESTOES, JSON.stringify(atualizadas));
+
+    adicionarAviso({
+      title: "Nova OS prioritária sugerida",
+      message:
+        novas.length === 1
+          ? `A IA sugere uma OS no ${novas[0].trechoNome}, Km ${novas[0].kmInicial} ao Km ${novas[0].kmFinal} (${novas[0].quantidade} pontos críticos).`
+          : `A IA sugeriu ${novas.length} novas ordens de serviço prioritárias. Veja em Ordem de Serviço.`,
+    });
+  }, [dadosCarregados, sugestoes, sugestoesNotificadas]);
 
   const carregarNotificacoes = async () => {
     try {
@@ -432,6 +485,7 @@ export function MockDataProvider({ children }) {
     ordens,
     ordemServico,
     ordensConcluidas,
+    sugestoes,
     dadosCarregados,
 
     setUser,

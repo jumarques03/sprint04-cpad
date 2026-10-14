@@ -91,6 +91,78 @@ export function alturaMaximaDosPontos(pontos) {
   return alturas.length > 0 ? Math.max(...alturas) : null;
 }
 
+// Pontos críticos separados por no máximo esta distância entram na mesma faixa
+const DISTANCIA_MAX_ENTRE_CRITICOS_KM = 4;
+
+export function chaveSugestao(sugestao) {
+  return `${sugestao.trechoId}:${sugestao.kmInicial}:${sugestao.kmFinal}`;
+}
+
+// RF03: a partir dos pontos críticos (vermelhos) do mapa, agrupa os pontos
+// próximos de cada trecho em faixas de km e devolve sugestões de ordem de
+// serviço, da mais para a menos crítica. Ignora pontos aguardando escaneamento
+// e faixas já cobertas por uma ordem aberta (pendente ou em andamento).
+export function sugerirOrdens(mapData, ordensAbertas = [], limite = 5) {
+  const sugestoes = [];
+
+  Object.values(mapData.trechos).forEach((trecho) => {
+    const criticos = trecho.pontos
+      .filter(
+        (ponto) =>
+          ponto.status !== STATUS_AGUARDANDO &&
+          classificarAltura(ponto.alturaVegetacao) === "vermelho"
+      )
+      .sort((a, b) => a.km - b.km);
+
+    let grupo = [];
+
+    const fecharGrupo = () => {
+      if (grupo.length === 0) return;
+
+      const sugestao = {
+        trechoId: trecho.id,
+        trechoNome: trecho.nome,
+        kmInicial: grupo[0].km,
+        kmFinal: grupo[grupo.length - 1].km,
+        quantidade: grupo.length,
+        alturaMaxima: Math.max(...grupo.map((ponto) => ponto.alturaVegetacao)),
+      };
+
+      sugestoes.push({ ...sugestao, chave: chaveSugestao(sugestao) });
+      grupo = [];
+    };
+
+    criticos.forEach((ponto) => {
+      const ultimo = grupo[grupo.length - 1];
+
+      if (ultimo && ponto.km - ultimo.km > DISTANCIA_MAX_ENTRE_CRITICOS_KM) {
+        fecharGrupo();
+      }
+
+      grupo.push(ponto);
+    });
+
+    fecharGrupo();
+  });
+
+  return sugestoes
+    .filter(
+      (sugestao) =>
+        !ordensAbertas.some(
+          (ordem) =>
+            ordem.trechoId === sugestao.trechoId &&
+            !(sugestao.kmFinal < ordem.kmInicial || sugestao.kmInicial > ordem.kmFinal)
+        )
+    )
+    .sort(
+      (a, b) =>
+        b.quantidade - a.quantidade ||
+        b.alturaMaxima - a.alturaMaxima ||
+        a.kmInicial - b.kmInicial
+    )
+    .slice(0, limite);
+}
+
 // Aplica sobre os trechos as roçadas concluídas (da mais antiga para a mais
 // nova): os pontos já escaneados dentro da faixa recebem a altura final e são
 // reclassificados. Pontos aguardando escaneamento continuam sem leitura.

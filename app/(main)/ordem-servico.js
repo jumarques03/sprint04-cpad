@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import EmptyState from "../../components/EmptyState";
 import OrdemServicoInfo from "../../components/OrdemServicoInfo";
 import OrdemServicoForm from "../../components/OrdemServicoForm";
 import OrdemResumoItem from "../../components/OrdemResumoItem";
+import OrdemSugeridaCard from "../../components/OrdemSugeridaCard";
 import BlueButton from "../../components/BlueButton";
 import BorderButton from "../../components/BorderButton";
 import { useMockData } from "../../context/MockDataContext";
@@ -26,6 +27,7 @@ export default function OrdemServico() {
     ordens,
     ordemServico,
     mapData,
+    sugestoes,
     criarOrdemServico,
     selecionarOrdem,
     iniciarOrdemServico,
@@ -33,6 +35,10 @@ export default function OrdemServico() {
 
   const [criando, setCriando] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
+  const [preenchimento, setPreenchimento] = useState(null);
+
+  const scrollRef = useRef(null);
+  const formularioY = useRef(0);
 
   const mostrarFormulario = criando || !ordemServico;
   const outrasOrdens = ordens.filter((ordem) => ordem.id !== ordemServico?.id);
@@ -40,12 +46,24 @@ export default function OrdemServico() {
 
   const handleCriar = async (dados) => {
     await criarOrdemServico(dados);
+    setPreenchimento(null);
     setCriando(false);
   };
 
   const handleIniciar = async () => {
     const resultado = await iniciarOrdemServico(ordemServico.id);
     setMensagemErro(resultado.sucesso ? "" : resultado.mensagem);
+  };
+
+  const handleUsarSugestao = (sugestao) => {
+    setPreenchimento({
+      tipo: "Roçada de vegetação",
+      trechoId: sugestao.trechoId,
+      kmInicial: sugestao.kmInicial,
+      kmFinal: sugestao.kmFinal,
+    });
+
+    scrollRef.current?.scrollTo({ y: formularioY.current, animated: true });
   };
 
   const handleSelecionar = (id) => {
@@ -62,6 +80,7 @@ export default function OrdemServico() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -76,11 +95,35 @@ export default function OrdemServico() {
                 />
               )}
 
-              <OrdemServicoForm
-                mapData={mapData}
-                onCriar={handleCriar}
-                onCancelar={ordemServico ? () => setCriando(false) : undefined}
-              />
+              {sugestoes.length > 0 && (
+                <>
+                  <Text style={styles.sectionTitleTopo}>Sugestões da IA</Text>
+                  <Text style={styles.dica}>
+                    Faixas com pontos críticos no mapa, sem ordem de serviço aberta.
+                  </Text>
+
+                  {sugestoes.map((sugestao) => (
+                    <OrdemSugeridaCard
+                      key={sugestao.chave}
+                      sugestao={sugestao}
+                      onUsar={handleUsarSugestao}
+                    />
+                  ))}
+                </>
+              )}
+
+              <View
+                onLayout={(event) => {
+                  formularioY.current = event.nativeEvent.layout.y;
+                }}
+              >
+                <OrdemServicoForm
+                  mapData={mapData}
+                  preenchimento={preenchimento}
+                  onCriar={handleCriar}
+                  onCancelar={ordemServico ? () => setCriando(false) : undefined}
+                />
+              </View>
             </>
           ) : (
             <>
@@ -161,6 +204,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#202020",
     marginTop: 24,
+  },
+
+  sectionTitleTopo: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#202020",
+    marginTop: 8,
   },
 
   dica: {
