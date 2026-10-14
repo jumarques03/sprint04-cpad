@@ -10,6 +10,7 @@ import {
 
 import { useRouter } from "expo-router";
 import HomeCards from "../../components/HomeCards";
+import OrderCard from "../../components/OrderCard";
 import EnableMonitoring from "../../components/EnableMonitoring";
 import InfoResume from "../../components/InfoResume";
 import { Ionicons } from "@expo/vector-icons";
@@ -73,6 +74,26 @@ export default function Inicio() {
               onPress={handleMonitoring}
               status={monitoring.ativo ? "ativo" : "inativo"}
             />
+
+            <Text style={styles.sectionTitle}>Ordem de Serviço</Text>
+
+            <View style={styles.cardsContainer}>
+              <OrderCard
+                title="INICIAR"
+                icon="play-circle"
+                color="#1FA463"
+                // TODO: iniciar a ordem de serviço (apenas frontend por enquanto)
+                onPress={() => {}}
+              />
+
+              <OrderCard
+                title="CONCLUIR"
+                icon="checkmark-circle"
+                color="#0E7C93"
+                // TODO: concluir a ordem de serviço (apenas frontend por enquanto)
+                onPress={() => {}}
+              />
+            </View>
 
             <Text style={styles.sectionTitle}>Monitoramento</Text>
 
