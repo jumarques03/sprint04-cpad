@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Platform } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { STATUS_INFO, STATUS_AGUARDANDO } from "../utils/vegetationStatus";
+import RodoanelLeafletMap from "./RodoanelLeafletMap";
 
 const PRIORIDADE_STATUS = {
   vermelho: 3,
@@ -27,7 +28,18 @@ function calcularRegiao(pontos) {
   };
 }
 
-export default function RodoanelMap({
+// No Android o mapa do Google exige chave de API (sem ela só aparece uma grade
+// cinza), então usamos um mapa Leaflet/OpenStreetMap dentro de uma WebView.
+// No iOS o react-native-maps usa o Apple Maps, que não precisa de chave.
+export default function RodoanelMap(props) {
+  if (Platform.OS === "android") {
+    return <RodoanelLeafletMap {...props} />;
+  }
+
+  return <RodoanelMapNativo {...props} />;
+}
+
+function RodoanelMapNativo({
   trechos,
   trechoSelecionado,
   regiaoInicial,

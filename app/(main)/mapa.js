@@ -46,6 +46,7 @@ export default function Mapa() {
   const [trechoSelecionado, setTrechoSelecionado] = useState("todos");
   const [pontoSelecionado, setPontoSelecionado] = useState(null);
   const [statusCarregamento, setStatusCarregamento] = useState({});
+  const [mapaEmUso, setMapaEmUso] = useState(false);
 
   const trechosParaSelector = useMemo(
     () => [
@@ -82,6 +83,7 @@ export default function Mapa() {
       <ChatHeader title="Mapeamento" />
 
       <ScrollView
+        scrollEnabled={!mapaEmUso}
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
@@ -125,6 +127,7 @@ export default function Mapa() {
             trechoSelecionado={trechoSelecionado}
             regiaoInicial={mapData.regiaoInicial}
             onSelecionarPonto={setPontoSelecionado}
+            onInteracaoMapa={setMapaEmUso}
           />
         )}
 
