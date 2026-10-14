@@ -77,6 +77,7 @@ export default function ConcluirOrdem() {
 
   const handleFotoChange = (uri) => {
     setFotoUri(uri);
+    setErros((prev) => ({ ...prev, foto: undefined }));
     setAvisoFoto("");
     setAceitarFotoTemporaria(false);
   };
