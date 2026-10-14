@@ -17,6 +17,7 @@ import FotoComprovacao from "../../components/FotoComprovacao";
 import { CustomInput } from "../../components/Input";
 import BlueButton from "../../components/BlueButton";
 import { useMockData } from "../../context/MockDataContext";
+import { salvarEvidencia } from "../../utils/evidencias";
 import {
   STATUS_ORDEM,
   alturaMaximaDosPontos,
@@ -33,6 +34,8 @@ export default function ConcluirOrdem() {
   const [fotoUri, setFotoUri] = useState(null);
   const [observacoes, setObservacoes] = useState("");
   const [erros, setErros] = useState({});
+  const [avisoFoto, setAvisoFoto] = useState("");
+  const [aceitarFotoTemporaria, setAceitarFotoTemporaria] = useState(false);
 
   const emAndamento = ordemServico?.status === STATUS_ORDEM.EM_ANDAMENTO;
 
@@ -73,14 +76,42 @@ export default function ConcluirOrdem() {
     return Object.keys(novosErros).length === 0;
   };
 
-  const handleConcluir = () => {
+  const handleFotoChange = (uri) => {
+    setFotoUri(uri);
+    setAvisoFoto("");
+    setAceitarFotoTemporaria(false);
+  };
+
+  const handleConcluir = async () => {
     if (!validar()) return;
 
-    concluirOrdemServico({
+    // Copia a foto do cache do image picker para o armazenamento permanente.
+    // Se falhar, os demais dados continuam preenchidos e o operador decide.
+    let caminhoFoto = fotoUri;
+    let evidenciaPermanente = true;
+
+    try {
+      caminhoFoto = await salvarEvidencia(fotoUri, ordemServico.numero);
+    } catch (error) {
+      console.error("Erro ao salvar a evidência", error);
+
+      if (!aceitarFotoTemporaria) {
+        setAvisoFoto(
+          "Não foi possível guardar a foto de forma permanente. Refaça a foto ou toque em Concluir novamente para registrar mesmo assim, com a foto temporária."
+        );
+        setAceitarFotoTemporaria(true);
+        return;
+      }
+
+      evidenciaPermanente = false;
+    }
+
+    await concluirOrdemServico({
       alturaInicial: converterNumero(alturaInicial),
       alturaFinal: converterNumero(alturaFinal),
       observacoes: observacoes.trim(),
-      fotoUri,
+      fotoUri: caminhoFoto,
+      evidenciaPermanente,
     });
 
     Alert.alert(
@@ -154,9 +185,11 @@ export default function ConcluirOrdem() {
 
               <FotoComprovacao
                 uri={fotoUri}
-                onChange={setFotoUri}
+                onChange={handleFotoChange}
                 erro={erros.foto}
               />
+
+              {!!avisoFoto && <Text style={styles.avisoFoto}>{avisoFoto}</Text>}
 
               <CustomInput
                 label="Observações (opcional)"
@@ -199,6 +232,14 @@ const styles = StyleSheet.create({
   content: {
     padding: 24,
     paddingBottom: 40,
+  },
+
+  avisoFoto: {
+    color: "#B7791F",
+    fontSize: 14,
+    marginTop: 6,
+    marginLeft: 4,
+    lineHeight: 20,
   },
 
   dica: {

@@ -303,7 +303,13 @@ export function MockDataProvider({ children }) {
 
   // Conclui a ordem ativa: atualiza os pontos do mapa dentro da faixa da ordem
   // com a altura final, guarda no histórico e remove a ordem da lista ativa.
-  const concluirOrdemServico = async ({ alturaInicial, alturaFinal, observacoes, fotoUri }) => {
+  const concluirOrdemServico = async ({
+    alturaInicial,
+    alturaFinal,
+    observacoes,
+    fotoUri,
+    evidenciaPermanente = true,
+  }) => {
     if (!ordemServico) return null;
 
     const registro = {
@@ -313,6 +319,7 @@ export function MockDataProvider({ children }) {
       alturaFinal,
       observacoes,
       fotoUri,
+      evidenciaPermanente,
       concluidaEm: new Date().toISOString(),
     };
 
