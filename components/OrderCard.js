@@ -2,10 +2,10 @@ import React from "react";
 import { TouchableOpacity, Text, View, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function OrderCard({ title, icon, color, onPress, style }) {
+export default function OrderCard({ title, subtitle, icon, color, onPress, dimmed, style }) {
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: color }, style]}
+      style={[styles.card, { backgroundColor: color }, dimmed && styles.dimmed, style]}
       onPress={onPress}
       activeOpacity={0.8}
     >
@@ -20,7 +20,10 @@ export default function OrderCard({ title, icon, color, onPress, style }) {
         style={styles.bigIcon}
       />
 
-      <Text style={styles.title}>{title}</Text>
+      <View>
+        <Text style={styles.title}>{title}</Text>
+        {!!subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+      </View>
     </TouchableOpacity>
   );
 }
@@ -33,6 +36,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     padding: 16,
     justifyContent: "space-between",
+  },
+
+  dimmed: {
+    opacity: 0.6,
   },
 
   iconBadge: {
@@ -54,5 +61,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#FFFFFF",
+  },
+
+  subtitle: {
+    fontSize: 12,
+    color: "#FFFFFF",
+    marginTop: 2,
   },
 });

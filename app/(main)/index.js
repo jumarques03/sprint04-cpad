@@ -15,6 +15,7 @@ import EnableMonitoring from "../../components/EnableMonitoring";
 import InfoResume from "../../components/InfoResume";
 import { Ionicons } from "@expo/vector-icons";
 import { useMockData } from "../../context/MockDataContext";
+import { STATUS_ORDEM } from "../../utils/ordemServico";
 
 export default function Inicio() {
   const router = useRouter();
@@ -25,6 +26,14 @@ export default function Inicio() {
     monitoring,
     iniciarMonitoramento,
   } = useMockData();
+
+  const emAndamento = ordemServico?.status === STATUS_ORDEM.EM_ANDAMENTO;
+
+  const subtituloIniciar = !ordemServico
+    ? "Criar ordem"
+    : emAndamento
+      ? "Em andamento"
+      : "Iniciar execução";
 
   const handleMonitoring = () => {
     iniciarMonitoramento();
@@ -69,6 +78,7 @@ export default function Inicio() {
               serviceOrder={ordemServico?.numero}
               address={ordemServico?.endereco}
               schedule={ordemServico?.horario}
+              status={ordemServico?.status}
             />
 
             <EnableMonitoring
@@ -81,15 +91,19 @@ export default function Inicio() {
             <View style={styles.cardsContainer}>
               <OrderCard
                 title="INICIAR"
+                subtitle={subtituloIniciar}
                 icon="play-circle"
                 color="#1FA463"
+                dimmed={emAndamento}
                 onPress={() => router.push("/(main)/ordem-servico")}
               />
 
               <OrderCard
                 title="CONCLUIR"
+                subtitle={emAndamento ? "Registrar roçada" : "Inicie uma ordem"}
                 icon="checkmark-circle"
                 color="#0E7C93"
+                dimmed={!emAndamento}
                 onPress={() => router.push("/(main)/concluir-ordem")}
               />
             </View>

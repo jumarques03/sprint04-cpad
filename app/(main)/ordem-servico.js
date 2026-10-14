@@ -7,92 +7,50 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { useRouter } from "expo-router";
 
 import Header from "../../components/Header";
-import TrechoSelector from "../../components/TrechoSelector";
 import EmptyState from "../../components/EmptyState";
 import OrdemServicoInfo from "../../components/OrdemServicoInfo";
-import { CustomInput, TimeInput } from "../../components/Input";
+import OrdemServicoForm from "../../components/OrdemServicoForm";
+import OrdemResumoItem from "../../components/OrdemResumoItem";
 import BlueButton from "../../components/BlueButton";
+import BorderButton from "../../components/BorderButton";
 import { useMockData } from "../../context/MockDataContext";
-import { converterNumero, formatarKm } from "../../utils/ordemServico";
-
-const HORARIO_VALIDO = /^([01]\d|2[0-3]):[0-5]\d$/;
+import { STATUS_ORDEM } from "../../utils/ordemServico";
 
 export default function OrdemServico() {
-  const { user, ordemServico, mapData, criarOrdemServico } = useMockData();
+  const router = useRouter();
+  const {
+    user,
+    ordens,
+    ordemServico,
+    mapData,
+    criarOrdemServico,
+    selecionarOrdem,
+    iniciarOrdemServico,
+  } = useMockData();
 
-  const [tipo, setTipo] = useState("");
-  const [trechoId, setTrechoId] = useState(null);
-  const [kmInicial, setKmInicial] = useState("");
-  const [kmFinal, setKmFinal] = useState("");
-  const [horarioInicio, setHorarioInicio] = useState("");
-  const [horarioFim, setHorarioFim] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [erros, setErros] = useState({});
+  const [criando, setCriando] = useState(false);
+  const [mensagemErro, setMensagemErro] = useState("");
 
-  const validar = () => {
-    const novosErros = {};
+  const mostrarFormulario = criando || !ordemServico;
+  const outrasOrdens = ordens.filter((ordem) => ordem.id !== ordemServico?.id);
+  const emAndamento = ordemServico?.status === STATUS_ORDEM.EM_ANDAMENTO;
 
-    if (!tipo.trim()) {
-      novosErros.tipo = "Campo obrigatório";
-    }
-
-    const trecho = trechoId ? mapData.trechos[trechoId] : null;
-    const kmIni = converterNumero(kmInicial);
-    const kmFim = converterNumero(kmFinal);
-
-    if (!trecho) {
-      novosErros.trecho = "Selecione o trecho";
-    }
-
-    if (!kmInicial.trim()) {
-      novosErros.kmInicial = "Campo obrigatório";
-    } else if (Number.isNaN(kmIni)) {
-      novosErros.kmInicial = "Km inválido";
-    } else if (trecho && (kmIni < trecho.kmInicial || kmIni > trecho.kmFinal)) {
-      novosErros.kmInicial = `Fora do trecho (${formatarKm(trecho.kmInicial)} a ${formatarKm(trecho.kmFinal)})`;
-    }
-
-    if (!kmFinal.trim()) {
-      novosErros.kmFinal = "Campo obrigatório";
-    } else if (Number.isNaN(kmFim)) {
-      novosErros.kmFinal = "Km inválido";
-    } else if (trecho && (kmFim < trecho.kmInicial || kmFim > trecho.kmFinal)) {
-      novosErros.kmFinal = `Fora do trecho (${formatarKm(trecho.kmInicial)} a ${formatarKm(trecho.kmFinal)})`;
-    } else if (!novosErros.kmInicial && kmFim <= kmIni) {
-      novosErros.kmFinal = "Deve ser maior que o km inicial";
-    }
-
-    if (!horarioInicio) {
-      novosErros.horarioInicio = "Campo obrigatório";
-    } else if (!HORARIO_VALIDO.test(horarioInicio)) {
-      novosErros.horarioInicio = "Horário inválido";
-    }
-
-    if (!horarioFim) {
-      novosErros.horarioFim = "Campo obrigatório";
-    } else if (!HORARIO_VALIDO.test(horarioFim)) {
-      novosErros.horarioFim = "Horário inválido";
-    } else if (HORARIO_VALIDO.test(horarioInicio) && horarioFim <= horarioInicio) {
-      novosErros.horarioFim = "Deve ser depois do início";
-    }
-
-    setErros(novosErros);
-    return Object.keys(novosErros).length === 0;
+  const handleCriar = async (dados) => {
+    await criarOrdemServico(dados);
+    setCriando(false);
   };
 
-  const handleCriar = () => {
-    if (!validar()) return;
+  const handleIniciar = async () => {
+    const resultado = await iniciarOrdemServico(ordemServico.id);
+    setMensagemErro(resultado.sucesso ? "" : resultado.mensagem);
+  };
 
-    criarOrdemServico({
-      tipo: tipo.trim(),
-      trechoId,
-      kmInicial: converterNumero(kmInicial),
-      kmFinal: converterNumero(kmFinal),
-      horario: `${horarioInicio} - ${horarioFim}`,
-      descricao: descricao.trim(),
-    });
+  const handleSelecionar = (id) => {
+    setMensagemErro("");
+    selecionarOrdem(id);
   };
 
   return (
@@ -108,102 +66,70 @@ export default function OrdemServico() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {ordemServico ? (
-            <OrdemServicoInfo ordem={ordemServico} team={user.equipe} />
+          {mostrarFormulario ? (
+            <>
+              {!ordemServico && (
+                <EmptyState
+                  icon="clipboard-outline"
+                  title="Nenhuma ordem de serviço"
+                  message="Você ainda não possui uma ordem de serviço para hoje. Preencha os campos abaixo para criar uma."
+                />
+              )}
+
+              <OrdemServicoForm
+                mapData={mapData}
+                onCriar={handleCriar}
+                onCancelar={ordemServico ? () => setCriando(false) : undefined}
+              />
+            </>
           ) : (
             <>
-              <EmptyState
-                icon="clipboard-outline"
-                title="Nenhuma ordem de serviço"
-                message="Você ainda não possui uma ordem de serviço para hoje. Preencha os campos abaixo para criar uma."
-              />
+              <OrdemServicoInfo ordem={ordemServico} team={user.equipe} />
 
-              <Text style={styles.sectionTitle}>Criar ordem de serviço</Text>
-
-              <CustomInput
-                label="Tipo de serviço"
-                placeholder="Ex: Roçada de vegetação"
-                value={tipo}
-                onChangeText={setTipo}
-                erro={erros.tipo}
-              />
-
-              <Text style={styles.label}>Rodovia</Text>
-              <Text style={styles.rodovia}>{mapData.rodovia}</Text>
-
-              <Text style={styles.label}>Trecho</Text>
-              <View style={styles.trechos}>
-                <TrechoSelector
-                  trechos={Object.values(mapData.trechos)}
-                  trechoSelecionado={trechoId}
-                  onSelecionar={setTrechoId}
-                />
-              </View>
-              {trechoId && (
-                <Text style={styles.dica}>
-                  Km do trecho: {formatarKm(mapData.trechos[trechoId].kmInicial)} a{" "}
-                  {formatarKm(mapData.trechos[trechoId].kmFinal)}
-                </Text>
+              {ordemServico.status === STATUS_ORDEM.PENDENTE && (
+                <BlueButton title="Iniciar execução" onPress={handleIniciar} />
               )}
-              {erros.trecho && <Text style={styles.erro}>{erros.trecho}</Text>}
 
-              <View style={styles.horarios}>
-                <View style={styles.horarioCampo}>
-                  <CustomInput
-                    label="Km inicial"
-                    placeholder="Ex: 120"
-                    value={kmInicial}
-                    onChangeText={setKmInicial}
-                    keyboardType="numeric"
-                    erro={erros.kmInicial}
+              {ordemServico.status === STATUS_ORDEM.EM_ANDAMENTO && (
+                <>
+                  <BlueButton
+                    title="Concluir"
+                    onPress={() => router.push("/(main)/concluir-ordem")}
                   />
-                </View>
 
-                <View style={styles.horarioCampo}>
-                  <CustomInput
-                    label="Km final"
-                    placeholder="Ex: 123"
-                    value={kmFinal}
-                    onChangeText={setKmFinal}
-                    keyboardType="numeric"
-                    erro={erros.kmFinal}
+                  <BorderButton
+                    title="Registrar impedimento"
+                    onPress={() => router.push("/(main)/cancelamento")}
                   />
-                </View>
-              </View>
+                </>
+              )}
 
-              <View style={styles.horarios}>
-                <View style={styles.horarioCampo}>
-                  <TimeInput
-                    label="Início"
-                    placeholder="09:00"
-                    value={horarioInicio}
-                    onChangeText={setHorarioInicio}
-                    erro={erros.horarioInicio}
-                  />
-                </View>
+              {!!mensagemErro && <Text style={styles.erro}>{mensagemErro}</Text>}
 
-                <View style={styles.horarioCampo}>
-                  <TimeInput
-                    label="Fim"
-                    placeholder="16:00"
-                    value={horarioFim}
-                    onChangeText={setHorarioFim}
-                    erro={erros.horarioFim}
-                  />
-                </View>
-              </View>
+              {outrasOrdens.length > 0 && (
+                <>
+                  <Text style={styles.sectionTitle}>Outras ordens</Text>
 
-              <CustomInput
-                label="Observações (opcional)"
-                placeholder="Descreva o serviço a ser realizado"
-                value={descricao}
-                onChangeText={setDescricao}
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
+                  {emAndamento && (
+                    <Text style={styles.dica}>
+                      Conclua a ordem em andamento antes de iniciar outra.
+                    </Text>
+                  )}
+
+                  {outrasOrdens.map((ordem) => (
+                    <OrdemResumoItem
+                      key={ordem.id}
+                      ordem={ordem}
+                      onPress={emAndamento ? undefined : () => handleSelecionar(ordem.id)}
+                    />
+                  ))}
+                </>
+              )}
+
+              <BorderButton
+                title="Criar nova ordem"
+                onPress={() => setCriando(true)}
               />
-
-              <BlueButton title="Criar ordem de serviço" onPress={handleCriar} />
             </>
           )}
         </ScrollView>
@@ -227,47 +153,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#202020",
-    marginBottom: 7,
-    marginTop: 5,
-  },
-
-  label: {
-    color: "#6A6A6A",
-    fontSize: 14,
-    marginBottom: 4,
-    marginTop: 10,
-  },
-
-  rodovia: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#081EAD",
-  },
-
-  trechos: {
-    marginHorizontal: -24,
+    marginTop: 24,
   },
 
   dica: {
     color: "#6A6A6A",
     fontSize: 13,
-    marginTop: 6,
-    marginLeft: 4,
+    marginTop: 4,
   },
 
   erro: {
     color: "#EC4040",
-    marginTop: 4,
-    marginLeft: 4,
+    marginTop: 10,
     fontSize: 14,
-  },
-
-  horarios: {
-    flexDirection: "row",
-    gap: 12,
-  },
-
-  horarioCampo: {
-    flex: 1,
   },
 });

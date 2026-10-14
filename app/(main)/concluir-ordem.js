@@ -18,6 +18,7 @@ import { CustomInput } from "../../components/Input";
 import BlueButton from "../../components/BlueButton";
 import { useMockData } from "../../context/MockDataContext";
 import {
+  STATUS_ORDEM,
   alturaMaximaDosPontos,
   converterNumero,
   pontosDaOrdem,
@@ -32,6 +33,8 @@ export default function ConcluirOrdem() {
   const [fotoUri, setFotoUri] = useState(null);
   const [observacoes, setObservacoes] = useState("");
   const [erros, setErros] = useState({});
+
+  const emAndamento = ordemServico?.status === STATUS_ORDEM.EM_ANDAMENTO;
 
   const pontos = ordemServico ? pontosDaOrdem(mapData, ordemServico) : [];
   const alturaMapa = alturaMaximaDosPontos(pontos);
@@ -100,7 +103,20 @@ export default function ConcluirOrdem() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {ordemServico ? (
+          {ordemServico && !emAndamento ? (
+            <>
+              <EmptyState
+                icon="play-circle-outline"
+                title="Inicie a ordem primeiro"
+                message={`A ordem #${ordemServico.numero} ainda não foi iniciada. Inicie a execução para poder registrar a roçada.`}
+              />
+
+              <BlueButton
+                title="Ir para a ordem de serviço"
+                onPress={() => router.replace("/(main)/ordem-servico")}
+              />
+            </>
+          ) : ordemServico ? (
             <>
               <OrdemServicoInfo ordem={ordemServico} team={user.equipe} />
 

@@ -6,6 +6,7 @@ export default function InfoResume({
   serviceOrder,
   address,
   schedule,
+  status,
 }) {
   return (
     <View style={styles.card}>
@@ -34,6 +35,13 @@ export default function InfoResume({
         Horário:{" "}
         <Text style={styles.highlight}>
           {schedule || "A definir"}
+        </Text>
+      </Text>
+
+      <Text style={styles.info}>
+        Status:{" "}
+        <Text style={styles.highlight}>
+          {serviceOrder ? status : "Sem ordem ativa"}
         </Text>
       </Text>
     </View>

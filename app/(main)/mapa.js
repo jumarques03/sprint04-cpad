@@ -93,6 +93,7 @@ export default function Mapa() {
             serviceOrder={ordemServico?.numero}
             address={ordemServico?.endereco}
             schedule={ordemServico?.horario}
+            status={ordemServico?.status}
           />
         </View>
 

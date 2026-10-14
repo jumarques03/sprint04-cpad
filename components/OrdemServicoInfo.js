@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import StatusBadge from "./StatusBadge";
 
 function InfoLinha({ icon, label, value }) {
   return (
@@ -21,9 +22,7 @@ export default function OrdemServicoInfo({ ordem, team }) {
       <View style={styles.topo}>
         <Text style={styles.numero}>Ordem de Serviço #{ordem.numero}</Text>
 
-        <View style={styles.badge}>
-          <Text style={styles.badgeTexto}>{ordem.status}</Text>
-        </View>
+        <StatusBadge status={ordem.status} />
       </View>
 
       <InfoLinha icon="construct-outline" label="Tipo de serviço" value={ordem.tipo} />
@@ -62,19 +61,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#081EAD",
-  },
-
-  badge: {
-    backgroundColor: "#081EAD",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-  },
-
-  badgeTexto: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "bold",
   },
 
   linha: {

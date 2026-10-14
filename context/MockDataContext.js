@@ -256,6 +256,51 @@ export function MockDataProvider({ children }) {
     return novaOrdem;
   };
 
+  const selecionarOrdem = async (id) => {
+    setOrdemAtivaId(id);
+    await salvarOrdens(ordens, id);
+  };
+
+  // Pendente -> Em andamento. Só uma ordem pode ficar em andamento por vez.
+  const iniciarOrdemServico = async (id = ordemServico?.id) => {
+    const ordem = ordens.find((item) => item.id === id);
+
+    if (!ordem) {
+      return { sucesso: false, mensagem: "Nenhuma ordem de serviço para iniciar." };
+    }
+
+    if (ordem.status !== STATUS_ORDEM.PENDENTE) {
+      return { sucesso: false, mensagem: "Esta ordem de serviço já foi iniciada." };
+    }
+
+    if (ordens.some((item) => item.status === STATUS_ORDEM.EM_ANDAMENTO)) {
+      return {
+        sucesso: false,
+        mensagem:
+          "Já existe uma ordem em andamento. Conclua-a ou registre um impedimento antes de iniciar outra.",
+      };
+    }
+
+    const iniciada = {
+      ...ordem,
+      status: STATUS_ORDEM.EM_ANDAMENTO,
+      iniciadaEm: new Date().toISOString(),
+    };
+
+    const atualizadas = ordens.map((item) => (item.id === id ? iniciada : item));
+
+    setOrdens(atualizadas);
+    setOrdemAtivaId(id);
+    await salvarOrdens(atualizadas, id);
+
+    adicionarAviso({
+      title: "Ordem de serviço iniciada",
+      message: `A ordem #${iniciada.numero} está em andamento (${iniciada.endereco}).`,
+    });
+
+    return { sucesso: true };
+  };
+
   // Conclui a ordem ativa: atualiza os pontos do mapa dentro da faixa da ordem
   // com a altura final, guarda no histórico e remove a ordem da lista ativa.
   const concluirOrdemServico = async ({ alturaInicial, alturaFinal, observacoes, fotoUri }) => {
@@ -355,6 +400,8 @@ export function MockDataProvider({ children }) {
     adicionarAviso,
     marcarComoLida,
     criarOrdemServico,
+    selecionarOrdem,
+    iniciarOrdemServico,
     concluirOrdemServico,
     atualizarPontosTrecho,
   };
