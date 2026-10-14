@@ -108,6 +108,17 @@ export default function Inicio() {
               />
             </View>
 
+            <View style={styles.cardsContainer}>
+              <OrderCard
+                title="HISTÓRICO"
+                subtitle="Ordens finalizadas e evidências"
+                icon="documents"
+                color="#455A64"
+                style={styles.cardLargo}
+                onPress={() => router.push("/(main)/historico-ordens")}
+              />
+            </View>
+
             <Text style={styles.sectionTitle}>Monitoramento</Text>
 
             <View style={styles.cardsContainer}>
@@ -180,6 +191,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 12,
     marginBottom: 10,
+  },
+  cardLargo: {
+    width: "100%",
+    height: 90,
   },
   cards: {
     flex: 1,

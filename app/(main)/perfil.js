@@ -60,6 +60,15 @@ export default function Perfil() {
           />
         </ProfileSection>
 
+        <ProfileSection title="Ordens de Serviço">
+          <ProfileOption
+            title="Histórico de Ordens"
+            icon="documents-outline"
+            onPress={() => router.push("/(main)/historico-ordens")}
+            isLast
+          />
+        </ProfileSection>
+
         <ProfileSection title="Suporte">
           <ProfileOption
             title="Ajuda"

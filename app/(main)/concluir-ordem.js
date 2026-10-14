@@ -6,7 +6,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 
@@ -106,7 +105,7 @@ export default function ConcluirOrdem() {
       evidenciaPermanente = false;
     }
 
-    await concluirOrdemServico({
+    const registro = await concluirOrdemServico({
       alturaInicial: converterNumero(alturaInicial),
       alturaFinal: converterNumero(alturaFinal),
       observacoes: observacoes.trim(),
@@ -114,11 +113,11 @@ export default function ConcluirOrdem() {
       evidenciaPermanente,
     });
 
-    Alert.alert(
-      "Ordem concluída",
-      "A roçada foi registrada e os pontos do mapa foram atualizados."
-    );
-    router.back();
+    // Leva o operador direto ao registro (com a evidência) da ordem concluída
+    router.replace({
+      pathname: "/(main)/historico-ordens",
+      params: { abrir: registro.numero },
+    });
   };
 
   return (
