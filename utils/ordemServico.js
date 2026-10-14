@@ -4,6 +4,49 @@ import {
   gerarRecomendacaoIA,
 } from "./vegetationStatus";
 
+export const STATUS_ORDEM = {
+  PENDENTE: "Pendente",
+  EM_ANDAMENTO: "Em andamento",
+  CONCLUIDA: "Concluída",
+  IMPEDIDA: "Impedida",
+  CANCELADA: "Cancelada",
+};
+
+export const STATUS_ORDEM_COR = {
+  [STATUS_ORDEM.PENDENTE]: "#B7791F",
+  [STATUS_ORDEM.EM_ANDAMENTO]: "#081EAD",
+  [STATUS_ORDEM.CONCLUIDA]: "#00A152",
+  [STATUS_ORDEM.IMPEDIDA]: "#E65100",
+  [STATUS_ORDEM.CANCELADA]: "#C62828",
+};
+
+export const NUMERO_INICIAL_ORDEM = 1025;
+
+export function ordemEstaAberta(ordem) {
+  return (
+    !!ordem &&
+    (ordem.status === STATUS_ORDEM.PENDENTE ||
+      ordem.status === STATUS_ORDEM.EM_ANDAMENTO)
+  );
+}
+
+// Data em que a ordem saiu do fluxo ativo (conclusão, impedimento ou cancelamento)
+export function dataFinalizacao(ordem) {
+  return ordem.concluidaEm ?? ordem.impedimento?.registradoEm ?? null;
+}
+
+// Converte os dados salvos em versões anteriores (@eco_ordem_servico_v2 e
+// @eco_ordens_concluidas) para o formato atual (lista de ordens com id).
+export function migrarOrdensAntigas(ordemAntiga, concluidasAntigas) {
+  const normalizar = (ordem) => ({ ...ordem, id: ordem.id ?? String(ordem.numero) });
+  const valida = (ordem) => !!ordem && !!ordem.numero && !!ordem.trechoId;
+
+  return {
+    ordens: valida(ordemAntiga) ? [normalizar(ordemAntiga)] : [],
+    historico: (concluidasAntigas ?? []).filter(valida).map(normalizar),
+  };
+}
+
 export function formatarKm(km) {
   return String(km).replace(".", ",");
 }
@@ -43,6 +86,9 @@ export function aplicarRocadas(trechos, rocadas) {
   const resultado = { ...trechos };
 
   [...rocadas].reverse().forEach((rocada) => {
+    // Impedimentos e cancelamentos não alteram a vegetação do mapa
+    if (rocada.status !== STATUS_ORDEM.CONCLUIDA) return;
+
     const trecho = resultado[rocada.trechoId];
     if (!trecho) return;
 
