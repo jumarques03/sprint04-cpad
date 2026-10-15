@@ -49,7 +49,7 @@ Por que essa escolha:
 | Hardware embarcado (câmera, computador de borda, GPS, modem 4G, instalação) | R$ 15–25 mil por veículo (única vez) → R$ 60–100 mil | Hoje é **mockado** no protótipo; entra amortizado em ~36 meses (R$ 1,7–2,8 mil/mês) |
 | Dados móveis (chip 4G) | ~R$ 400/mês | ~R$ 100 por veículo |
 | Nuvem (backend, banco, armazenamento das fotos, monitoramento) | R$ 2–4 mil/mês | Hoje o app guarda tudo só no aparelho (`AsyncStorage`) |
-| API de IA (Gemini: resumos do trecho e chat) | R$ 200–800/mês | Baixo volume de texto; conferir a tabela vigente do provedor |
+| API de IA (Gemini: assistente de dúvidas no app) | R$ 200–800/mês | Baixo volume de texto. Hoje só o chat usa a API; os resumos do mapa são regras locais. Conferir a tabela vigente do provedor |
 | Manutenção evolutiva e correções (~1,5 dev) | R$ 20–30 mil/mês | Maior custo do projeto |
 | Suporte (N1/N2, ~0,5 pessoa) | R$ 5–8 mil/mês | Inclui treinamento das equipes |
 | Implantação e treinamento | R$ 15–30 mil (única vez) | |
@@ -62,7 +62,7 @@ Por que essa escolha:
 | --- | --- | --- |
 | **Hardware e visão computacional ainda não existem**: altura da vegetação e GPS são mockados | Alto | Etapa de prova de conceito com 1 veículo antes do piloto. O app já recebe os pontos no formato esperado (km, lat/lng, altura, status) |
 | **Falta de sinal na rodovia** | Alto | RNF01 (modo offline). O app já persiste OS, histórico e avisos localmente. **Falta** a fila de sincronização com o servidor |
-| **IA indisponível ou com limite de uso** (já ocorreu no Gemini) | Médio | Fallback de mock no chat e nos resumos. Planejar um provedor alternativo e cache das respostas |
+| **IA indisponível ou com limite de uso** (já ocorreu no Gemini) | Médio | Fallback local no chat (mensagem fixa) e a chave fora do código, via variável de ambiente. Planejar um provedor alternativo e cache das respostas |
 | **Evidência fraudada ou sem confiança** (a altura final é informada pelo operador) | Alto | Exigir foto na conclusão (já implementado) e, no backend, validar data/hora e posição da foto contra o km da OS |
 | **Perda de fotos** (a foto do cache do celular pode ser apagada) | Médio | A foto é copiada para o armazenamento permanente do app, com aviso se a cópia falhar. Backup no servidor é o próximo passo |
 | **Baixa adesão do operador** | Médio | Fluxo curto, textos em português, treinamento no piloto e acompanhamento de uso |

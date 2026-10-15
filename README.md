@@ -148,7 +148,7 @@ O modelo de negócio do EcoTrack (proposta de valor, personas, modelo de receita
   - 🟢 **Verde:** abaixo de 10 cm
   - 🟡 **Amarelo:** entre 10 cm e 30 cm
   - 🔴 **Vermelho:** acima de 30 cm
-- Geração de Resumo Inteligente do trecho via integração com IA/Mock.
+- Resumo operacional do trecho ("Análise Operacional"), gerado por **regras locais** a partir dos pontos monitorados (quantidade de pontos críticos, em atenção e aguardando escaneamento). Ele simula a camada inteligente do sistema embarcado.
 
 ## Avisos & Notificações ✅
 - **Novo na Sprint 3:** Persistência de leitura. Avisos clicados são marcados como lidos e salvos no `AsyncStorage`, sobrevivendo a reinicializações do app.
@@ -186,7 +186,11 @@ O mock do mapa agora reflete o **Rodoanel Mário Covas completo**, dividido em s
 - **Justificativa de Mock:** a altura da vegetação "antes" vem do mapa mockado (que no cenário real viria do hardware embarcado); a altura "depois" é informada pelo operador ao concluir.
 
 ### Integração IA e Fallbacks
-O assistente de chat e os resumos de mapa foram arquitetados para consumir a API oficial do Google Gemini. Devido a limites e alta demanda (*high demand*) temporária nas contas de camada gratuita do provedor, implementamos fallbacks (rotas alternativas) de mock com DummyJSON. Isso garante que o fluxo do aplicativo nunca trave durante a operação em campo, mantendo a responsabilidade do software.
+Apenas o **assistente de dúvidas (chat)** consome a API oficial do Google Gemini (modelo `gemini-flash-latest`). A chave é lida da variável de ambiente `EXPO_PUBLIC_GEMINI_API_KEY` (arquivo `.env` local ou variável do EAS Build; veja `.env.example`) e **não fica no código**.
+
+Se a chave não estiver configurada, ou se a API estiver sem rede ou em alta demanda (*high demand*, comum na camada gratuita), o app exibe uma **mensagem de fallback local** e o fluxo nunca trava durante a operação em campo.
+
+O resumo do trecho e as recomendações "EcoTrackAI" do mapa **não usam a API**: são geradas por regras locais (`utils/vegetationStatus.js` e `app/(main)/mapa.js`) e simulam a camada inteligente do sistema embarcado.
 
 ---
 
@@ -238,7 +242,7 @@ Não são fluxos faltando no app, e sim validações em dispositivo e itens que 
 3. **Dados de vegetação e GPS:** continuam mockados (`data/mockMap.js`); a integração com o hardware embarcado da visão computacional não existe. A altura "final" é informada manualmente pelo operador.
 4. **Uma OS em andamento por vez:** regra mantida; várias OS simultâneas ou equipes diferentes exigiriam um modelo de equipe/usuário no backend.
 5. **Mapa no Android sem chave do Google:** o Android usa Leaflet/OpenStreetMap em WebView (precisa de internet). Para produção, o ideal é configurar uma chave do Google Maps.
-6. **Assistente de IA:** os fallbacks de mock continuam ativos quando a API do Gemini está em alta demanda.
+6. **Assistente de IA:** o fallback local continua ativo quando a chave não está configurada ou a API do Gemini está em alta demanda. Os resumos e recomendações do mapa ainda são regras locais, e não IA generativa.
 7. **Retenção das evidências:** as fotos antigas não são apagadas do aparelho.
 8. **Testes automatizados:** hoje os testes são manuais; falta cobrir as regras de `utils/ordemServico.js` com testes unitários.
 
@@ -257,7 +261,7 @@ Não são fluxos faltando no app, e sim validações em dispositivo e itens que 
 | Mapa | `react-native-maps` (iOS) e Leaflet 1.9 + OpenStreetMap em `react-native-webview` (Android) |
 | Vídeo do monitoramento (mock) | `expo-video` |
 | Interface | `@expo/vector-icons`, `react-native-mask-input`, StyleSheet do React Native |
-| IA | API do Google Gemini (chat e resumos), com fallback de mock |
+| IA | API do Google Gemini (apenas o chat), com mensagem de fallback local; resumos e recomendações do mapa são gerados por regras locais |
 | Dados | Mocks por domínio em `data/` (usuário, mapa, monitoramento, avisos, OS) |
 
 ---
@@ -297,7 +301,9 @@ context/
 data/                          (mocks por domínio, incluindo mockOrdemServico.js)
 │
 docs/
-│   └── MODELO_DE_NEGOCIO.md   (modelo de negócio e viabilidade)
+│   ├── MODELO_DE_NEGOCIO.md   (modelo de negócio e viabilidade)
+│   ├── CHECKLIST_ENTREGA.md   (passo a passo: APK, testes, vídeo e envio)
+│   └── ENTREGA_SPRINT4.txt    (rascunho do .txt de entrega)
 │
 utils/
 │   ├── ordemServico.js        (status, sugestões RF03, integração OS x mapa)
@@ -323,7 +329,7 @@ Para instalar no Android:
 
 > O app precisa de internet para o mapa (tiles do OpenStreetMap) e para o assistente de IA. OS, histórico e avisos ficam salvos no aparelho.
 
-**Como gerar um novo APK** (EAS Build, requer conta Expo): configure o perfil `preview` em `eas.json` com `"android": { "buildType": "apk" }` e execute `npx eas-cli build -p android --profile preview`.
+**Como gerar um novo APK** (EAS Build, requer conta Expo): o perfil `preview` já está configurado em `eas.json` para gerar APK. Execute `npx eas-cli build -p android --profile preview`. O passo a passo completo (login, chave do Gemini, publicação do link) está em [`docs/CHECKLIST_ENTREGA.md`](docs/CHECKLIST_ENTREGA.md).
 
 ---
 
@@ -345,6 +351,10 @@ cd sprint04-cpad
 ```bash
 npm install
 ```
+
+## Configurar a Chave do Assistente de IA (opcional)
+
+Copie `.env.example` para `.env` e preencha `EXPO_PUBLIC_GEMINI_API_KEY` com uma chave da API do Google Gemini. Sem a chave, o app funciona normalmente e o assistente responde com a mensagem de fallback.
 
 ## Executar o Projeto
 
@@ -375,12 +385,12 @@ O mapa interativo (`react-native-maps`) apenas renderiza a base cartográfica (A
 
 | Cenário testado | Resultado esperado | Resultado obtido | Status |
 | --- | --- | --- | --- |
-| Trocar o trecho selecionado (ex: "Todos" → "Trecho Norte") | A lista/mapa filtra para exibir apenas os pontos do trecho escolhido e o resumo da IA é recalculado | Filtro aplicado corretamente, apenas os 7 pontos do Trecho Norte exibidos e resumo atualizado | ✅ Passou |
+| Trocar o trecho selecionado (ex: "Todos" → "Trecho Norte") | A lista/mapa filtra para exibir apenas os pontos do trecho escolhido e o resumo do trecho é recalculado | Filtro aplicado corretamente, apenas os 7 pontos do Trecho Norte exibidos e resumo atualizado | ✅ Passou |
 | Abrir um ponto do Trecho Norte sem leitura (ex: Km 144) | Deve exibir estado "Aguardando leitura", sem `undefined` ou quebra de tela | Modal exibiu "Aguardando leitura" com mensagem explicativa, sem erros | ✅ Passou |
 | Abrir um ponto com leitura completa (ex: Km 172, vermelho) | Deve exibir km, altura, status colorido, horário da leitura e recomendação da IA | Modal exibiu todos os dados corretamente (35 cm, vermelho, horário formatado e recomendação) | ✅ Passou |
 | Simular falha ao atualizar um trecho ("Atualizar pontos do trecho") | Deve exibir estado de erro com botão "Tentar novamente", sem travar a tela | Estado de erro exibido corretamente; "Tentar novamente" restaurou os dados do trecho | ✅ Passou |
 | Simular trecho sem nenhum ponto escaneado | Deve exibir estado vazio claro ("Nenhum trecho escaneado ainda"), não uma tela em branco | Estado vazio exibido corretamente com mensagem e botão para tentar atualizar novamente | ✅ Passou (bug corrigido: antes da correção, o trecho ficava vazio permanentemente após esse estado, pois o "sucesso" só atualizava os pontos já existentes; corrigido para regenerar a partir dos dados originais do mock) |
-| Selecionar "Todos" após navegar pelos trechos | Deve agregar os pontos dos 4 trechos, cobrindo o anel completo, e mostrar o resumo geral da IA | Todos os 243 pontos exibidos (espaçamento de ~750 m), agrupados por trecho, resumo geral correto | ✅ Passou |
+| Selecionar "Todos" após navegar pelos trechos | Deve agregar os pontos dos 4 trechos, cobrindo o anel completo, e mostrar o resumo geral do trecho | Todos os 243 pontos exibidos (espaçamento de ~750 m), agrupados por trecho, resumo geral correto | ✅ Passou |
 
 ---
 
