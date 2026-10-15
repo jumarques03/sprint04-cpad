@@ -9,7 +9,7 @@ export default function AssistantInfo({ title, description }) {
         <Ionicons name="chatbox-ellipses-outline" size={28} color="#081EAD" />
       </View>
 
-      <View>
+      <View style={styles.textos}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.description}>{description}</Text>
       </View>
@@ -23,6 +23,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 18,
     marginBottom: 28,
+  },
+
+  textos: {
+    flex: 1,
   },
 
     iconCircle: {

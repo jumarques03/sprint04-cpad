@@ -6,10 +6,15 @@ import AssistantInfo from "../../components/AssistantInfo";
 import ChatBubble from "../../components/ChatBubble";
 import ChatInput from "../../components/ChatInput";
 import EmptyState from "../../components/EmptyState";
-import OrdemResumoItem from "../../components/OrdemResumoItem";
-import TipoRegistroSelector from "../../components/TipoRegistroSelector";
+import OrdemChatCard from "../../components/OrdemChatCard";
+import RespostasRapidas from "../../components/RespostasRapidas";
 import BlueButton from "../../components/BlueButton";
 import { useMockData } from "../../context/MockDataContext";
+
+const OPCOES_REGISTRO = [
+  { id: "Impedimento", label: "Impedimento", icon: "rainy-outline" },
+  { id: "Cancelamento", label: "Cancelamento", icon: "close-circle-outline" },
+];
 
 const horaAtual = () =>
   new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -19,13 +24,14 @@ export default function Cancelamento() {
   const [message, setMessage] = useState("");
   const [tipo, setTipo] = useState(null);
   const [registrado, setRegistrado] = useState(false);
-  const { ordemServico, registrarImpedimento } = useMockData();
+  const { ordemServico, mapData, registrarImpedimento } = useMockData();
 
   const [chats, setChats] = useState([
     {
       id: "1",
       type: "bot",
-      message: "Olá! Escolha abaixo o que você precisa registrar na ordem de serviço.",
+      message:
+        "Olá! O que você precisa registrar na ordem de serviço?\n\nImpedimento: algo impediu a execução hoje (chuva, acesso bloqueado...).\n\nCancelamento: a ordem não será mais executada.",
       time: horaAtual(),
     },
   ]);
@@ -102,7 +108,13 @@ export default function Cancelamento() {
               description="Registre na ordem de serviço o que impediu ou cancelou a execução."
             />
 
-            {ordemServico && <OrdemResumoItem ordem={ordemServico} selecionada />}
+            {ordemServico && (
+              <OrdemChatCard
+                ordem={ordemServico}
+                rodovia={mapData.rodovia}
+                trechoNome={mapData.trechos[ordemServico.trechoId]?.nome ?? ""}
+              />
+            )}
 
             {chats.map((msg) => (
               <ChatBubble
@@ -114,7 +126,10 @@ export default function Cancelamento() {
             ))}
 
             {!tipo && !registrado && (
-              <TipoRegistroSelector onSelecionar={handleSelecionarTipo} />
+              <RespostasRapidas
+                opcoes={OPCOES_REGISTRO}
+                onSelecionar={handleSelecionarTipo}
+              />
             )}
 
             {registrado && (
