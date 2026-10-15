@@ -4,9 +4,21 @@ Bem-vindo ao repositório do **EcoTrack**, uma solução tecnológica desenvolvi
 
 O projeto foi desenvolvido como parte do Challenge CCR Motiva do curso de Ciência da Computação da FIAP, com o objetivo de aplicar conceitos de desenvolvimento mobile, estruturação de dados, persistência local, visão computacional e apoio à tomada de decisão baseada em dados. 
 
-Na **Sprint 3**, entregamos um protótipo funcional com fluxos navegáveis, persistência de dados locais e a camada de simulação (mock) cobrindo os cenários da solução.
+Este README é o **documento-âncora** da entrega final (Sprint 4): reúne a proposta da solução, a stack, o link do APK, o vídeo, o plano de negócio e o resumo das entregas de cada Sprint.
 
 Nesta **Sprint 4**, corrigimos o principal ponto do feedback da Sprint 3: o operador agora consegue **criar, iniciar e concluir uma ordem de serviço (OS)** de ponta a ponta, com **evidência fotográfica da roçada** (RF04) e **sugestão automática de OS pelos pontos críticos do mapa** (RF03). A OS está integrada ao mapa do Rodoanel: ao concluir a roçada, os pontos da faixa de km da ordem são atualizados no mapa.
+
+---
+
+# Links da Entrega
+
+| Item | Link |
+| --- | --- |
+| 📱 **APK para download (Android)** | **[PREENCHER: link do APK]** — instruções em [Download do APK e Instalação](#download-do-apk-e-instalação) |
+| 🎬 **Vídeo final** | **[PREENCHER: link do vídeo]** |
+| 📄 **Plano de negócio** | [`docs/MODELO_DE_NEGOCIO.md`](docs/MODELO_DE_NEGOCIO.md) |
+| 🎨 **Protótipo no Figma** | [SPRINT_CROSS-PLATFORM](https://www.figma.com/design/TT7nBNLKKnz3fK0f7vxFFX/SPRINT_CROSS-PLATFORM?node-id=0-1&t=ZFpQWhvOqdRo8JIx-1) |
+| 💻 **Repositório** | https://github.com/jumarques03/sprint04-cpad |
 
 ---
 
@@ -34,6 +46,20 @@ Embora esse modelo funcione, ele apresenta limitações importantes:
 - Riscos relacionados à segurança viária e à visibilidade da sinalização.
 
 Dessa forma, existe a necessidade de uma solução capaz de monitorar os trechos de forma inteligente, permitindo que as equipes atuem de maneira eficiente, estratégica e baseada em dados.
+
+---
+
+# Proposta de Solução
+
+O **EcoTrack** troca o cronograma fixo de roçada por uma **operação baseada em dados**. Veículos da frota levam um sistema de visão computacional que mede a altura da vegetação ao longo da pista; o aplicativo mobile, usado pelo operador de campo, centraliza o restante do fluxo:
+
+1. **Monitorar:** o operador liga e desliga o escaneamento do veículo e acompanha o mapa interativo do **Rodoanel Mário Covas (SP-021)**, com semáforo por ponto (🟢 abaixo de 10 cm, 🟡 de 10 a 30 cm, 🔴 acima de 30 cm).
+2. **Priorizar:** o app sugere ordens de serviço para as faixas de km com pontos críticos (RF03).
+3. **Executar:** o operador cria, inicia e conclui a OS, ou registra impedimento/cancelamento, sempre ligado a uma faixa real do mapa.
+4. **Comprovar:** na conclusão, registra as alturas inicial e final da grama e uma **foto de evidência** (RF04). O mapa é atualizado e o histórico guarda tudo para consulta.
+5. **Tirar dúvidas:** o assistente virtual (IA) responde perguntas operacionais (RF05).
+
+Os dados de vegetação e o GPS são **mockados** no protótipo, porque no cenário real viriam do hardware embarcado nos veículos. O detalhamento de valor, custos e riscos está no [plano de negócio](docs/MODELO_DE_NEGOCIO.md).
 
 ---
 
@@ -77,6 +103,17 @@ O EcoTrack integra um aplicativo mobile com um sistema de visão computacional e
 # Modelo de Negócio
 
 O modelo de negócio do EcoTrack (proposta de valor, personas, modelo de receita, custos, riscos, diferenciais e impacto esperado para a Motiva) está documentado na pasta [`docs/`](docs/), no arquivo [`docs/MODELO_DE_NEGOCIO.md`](docs/MODELO_DE_NEGOCIO.md).
+
+---
+
+# Resumo das Entregas por Sprint
+
+| Sprint | Foco | O que foi entregue |
+| --- | --- | --- |
+| **Sprint 1** | Protótipo de telas | [Protótipo mobile no Figma](https://www.figma.com/design/TT7nBNLKKnz3fK0f7vxFFX/SPRINT_CROSS-PLATFORM?node-id=0-1&t=ZFpQWhvOqdRo8JIx-1) com o desenho das telas e dos fluxos do aplicativo. |
+| **Sprint 2** | Protótipo mobile com dados mockados | App em React Native + Expo Router com Context API e AsyncStorage: autenticação (cadastro, login, logout, sessão e troca de senha), tela inicial, monitoramento com vídeo simulado, mapeamento, avisos, assistentes de dúvidas e de cancelamento (respostas simuladas), perfil e suporte. Mocks separados por domínio. |
+| **Sprint 3** | Protótipo funcional completo | Mapa interativo do Rodoanel Mário Covas (4 trechos, pontos tocáveis e classificação por altura), persistência de leitura dos avisos, chat com a API do Gemini com fallback e testes manuais. |
+| **Sprint 4** | Fluxo de OS e entrega final | Ciclo completo da OS (criar, iniciar, concluir, impedimento e cancelamento), evidência fotográfica persistente (RF04), histórico de ordens, sugestão automática de OS (RF03), integração OS × mapa, atualização para o Expo SDK 57, mapa Android com Leaflet, novos cards com ícones, plano de negócio e este README. |
 
 ---
 
@@ -179,43 +216,49 @@ Foram executados testes manuais para garantir que os fluxos principais e alterna
 
 ---
 
-# Pendências e Plano de Ajustes
+# Status das Pendências
 
-Pendências reais após a Sprint 4:
-1. **Testes em dispositivo:** validar no celular (Expo Go/dev build) a câmera, a cópia da foto para `documentDirectory/evidencias` e a permanência da foto após limpar o cache. Na web a cópia de arquivos não é suportada, por isso esse caminho só foi testado pelo aviso de falha.
-2. **Backend real:** OS, histórico e evidências ficam apenas no `AsyncStorage` e no armazenamento do aparelho. Falta sincronizar com um servidor (envio das fotos e do status das OS para a central), inclusive em modo offline com fila de envio.
-3. **Dados de vegetação e GPS:** continuam mockados (`data/mockMap.js`); a integração com o hardware embarcado da visão computacional ainda não existe. A altura "final" é informada manualmente pelo operador.
-4. **Uma OS em andamento por vez:** mantivemos essa regra; permitir várias OS simultâneas ou equipes diferentes exigiria um modelo de equipe/usuário no backend.
-5. **Mapa no Android sem chave do Google:** o Android usa Leaflet/OpenStreetMap em WebView (precisa de internet). Para produção, o ideal é configurar uma chave do Google Maps e voltar ao mapa nativo.
-6. **Assistente de IA:** substituir os mocks de fallback pela conexão final com a API quando a conta estiver estável.
-7. **Limpeza de evidências:** as fotos antigas não são apagadas do aparelho; falta uma política de retenção.
-8. **Testes automatizados:** hoje os testes são manuais (tabela acima); falta cobrir as regras de OS (`utils/ordemServico.js`) com testes unitários.
+### Pendências do feedback da Sprint 3 — resolvidas na Sprint 4
+
+| Pendência apontada | Situação | Como foi resolvida |
+| --- | --- | --- |
+| Operador não conseguia abrir, iniciar e concluir uma OS | ✅ Resolvida | Ciclo completo: criar, iniciar ("Em andamento"), concluir, impedimento e cancelamento, com histórico |
+| RF04 incompleto (evidência da conclusão da poda) | ✅ Resolvida | Foto (câmera ou galeria) + alturas inicial/final + observações, guardadas no armazenamento do app e exibidas no histórico |
+| RF03 (OS prioritárias) | ✅ Resolvida | Sugestão automática de OS a partir dos pontos críticos do mapa, com aviso sem repetição |
+| OS desconectada do mapa | ✅ Resolvida | A OS aponta para uma faixa real (trecho + km) e a conclusão atualiza os pontos do Rodoanel |
+
+Com isso, **os fluxos de ordem de serviço previstos para a Sprint 4 estão implementados**.
+
+### Pontos em aberto e evolução futura
+
+Não são fluxos faltando no app, e sim validações em dispositivo e itens que dependem de infraestrutura fora do escopo do protótipo:
+
+1. **Validação em dispositivo:** testar no celular (APK) a câmera, a cópia da foto para `documentDirectory/evidencias` e a permanência da foto após limpar o cache. Na web a cópia de arquivos não é suportada, por isso esse caminho só foi testado pelo aviso de falha (ver tabela de testes).
+2. **Backend real:** OS, histórico e evidências ficam apenas no `AsyncStorage` e no armazenamento do aparelho. Falta sincronizar com um servidor, inclusive em modo offline com fila de envio.
+3. **Dados de vegetação e GPS:** continuam mockados (`data/mockMap.js`); a integração com o hardware embarcado da visão computacional não existe. A altura "final" é informada manualmente pelo operador.
+4. **Uma OS em andamento por vez:** regra mantida; várias OS simultâneas ou equipes diferentes exigiriam um modelo de equipe/usuário no backend.
+5. **Mapa no Android sem chave do Google:** o Android usa Leaflet/OpenStreetMap em WebView (precisa de internet). Para produção, o ideal é configurar uma chave do Google Maps.
+6. **Assistente de IA:** os fallbacks de mock continuam ativos quando a API do Gemini está em alta demanda.
+7. **Retenção das evidências:** as fotos antigas não são apagadas do aparelho.
+8. **Testes automatizados:** hoje os testes são manuais; falta cobrir as regras de `utils/ordemServico.js` com testes unitários.
 
 ---
 
-# Tecnologias Utilizadas
+# Stack Utilizada
 
-## Mobile
-
-- React Native
-- Expo
-- Expo Router (Expo SDK 57)
-- Expo Image Picker (câmera e galeria)
-- Expo File System (armazenamento das evidências)
-
-## Gerenciamento de Estado
-
-- Context API
-
-## Persistência Local
-
-- AsyncStorage
-
-## Interface
-
-- Expo Vector Icons
-- React Native StyleSheet
-- React Native Maps (iOS) / Leaflet + OpenStreetMap em WebView (Android)
+| Camada | Tecnologia |
+| --- | --- |
+| Framework mobile | React Native 0.86.3 + React 19.2.3, com **Expo SDK 57** |
+| Navegação | Expo Router (~57.0) |
+| Estado global | Context API (`AuthContext`, `MockDataContext`) |
+| Persistência local | `@react-native-async-storage/async-storage` (OS, histórico, avisos, sessão, contador) |
+| Câmera e galeria | `expo-image-picker` |
+| Armazenamento das evidências | `expo-file-system` (`documentDirectory/evidencias`) |
+| Mapa | `react-native-maps` (iOS) e Leaflet 1.9 + OpenStreetMap em `react-native-webview` (Android) |
+| Vídeo do monitoramento (mock) | `expo-video` |
+| Interface | `@expo/vector-icons`, `react-native-mask-input`, StyleSheet do React Native |
+| IA | API do Google Gemini (chat e resumos), com fallback de mock |
+| Dados | Mocks por domínio em `data/` (usuário, mapa, monitoramento, avisos, OS) |
 
 ---
 
@@ -266,17 +309,35 @@ assets/
 
 ---
 
+# Download do APK e Instalação
+
+**Link do APK:** **[PREENCHER: link do APK]**
+
+Para instalar no Android:
+
+1. Baixe o arquivo `.apk` pelo link acima, direto no celular.
+2. Abra o arquivo baixado. Se o Android pedir, permita a **instalação de apps de fontes desconhecidas** para o navegador ou gerenciador de arquivos usado.
+3. Toque em **Instalar** e depois em **Abrir**.
+4. Na primeira abertura, permita o acesso à **câmera** e às **fotos**, usados para registrar a evidência da roçada.
+5. Para entrar, faça o cadastro (e-mail corporativo `@motiva.com` e token de validação, conforme a tela de cadastro) ou use uma conta já criada.
+
+> O app precisa de internet para o mapa (tiles do OpenStreetMap) e para o assistente de IA. OS, histórico e avisos ficam salvos no aparelho.
+
+**Como gerar um novo APK** (EAS Build, requer conta Expo): configure o perfil `preview` em `eas.json` com `"android": { "buildType": "apk" }` e execute `npx eas-cli build -p android --profile preview`.
+
+---
+
 # Como Rodar o Projeto
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/jumarques03/sprint02-cpad
+git clone https://github.com/jumarques03/sprint04-cpad
 ```
 
 ## Acessar a Pasta do Projeto
 
 ```bash
-cd sprint02-cpad
+cd sprint04-cpad
 ```
 
 ## Instalar Dependências
