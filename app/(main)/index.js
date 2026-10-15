@@ -92,8 +92,8 @@ export default function Inicio() {
               <OrderCard
                 title="INICIAR"
                 subtitle={subtituloIniciar}
-                icon="play-circle"
-                color="#1FA463"
+                image={require("../../assets/iconeIniciar.png")}
+                color="#0A3D91"
                 dimmed={emAndamento}
                 onPress={() => router.push("/(main)/ordem-servico")}
               />
@@ -101,8 +101,8 @@ export default function Inicio() {
               <OrderCard
                 title="CONCLUIR"
                 subtitle={emAndamento ? "Registrar roçada" : "Inicie uma ordem"}
-                icon="checkmark-circle"
-                color="#0E7C93"
+                image={require("../../assets/iconeConcluido.png")}
+                color="#0F6B3A"
                 dimmed={!emAndamento}
                 onPress={() => router.push("/(main)/concluir-ordem")}
               />
@@ -112,9 +112,9 @@ export default function Inicio() {
               <OrderCard
                 title="HISTÓRICO"
                 subtitle="Ordens finalizadas e evidências"
-                icon="documents"
-                color="#455A64"
-                style={styles.cardLargo}
+                image={require("../../assets/iconeHistorico.png")}
+                color="#2F3040"
+                horizontal
                 onPress={() => router.push("/(main)/historico-ordens")}
               />
             </View>
@@ -191,10 +191,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 12,
     marginBottom: 10,
-  },
-  cardLargo: {
-    width: "100%",
-    height: 90,
   },
   cards: {
     flex: 1,

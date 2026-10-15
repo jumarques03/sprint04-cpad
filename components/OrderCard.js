@@ -1,26 +1,35 @@
 import React from "react";
-import { TouchableOpacity, Text, View, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { TouchableOpacity, Text, Image, View, StyleSheet } from "react-native";
 
-export default function OrderCard({ title, subtitle, icon, color, onPress, dimmed, style }) {
+export default function OrderCard({
+  title,
+  subtitle,
+  image,
+  color,
+  onPress,
+  dimmed,
+  horizontal,
+  style,
+}) {
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: color }, dimmed && styles.dimmed, style]}
+      style={[
+        styles.card,
+        horizontal && styles.cardHorizontal,
+        { backgroundColor: color },
+        dimmed && styles.dimmed,
+        style,
+      ]}
       onPress={onPress}
       activeOpacity={0.8}
     >
-      <View style={styles.iconBadge}>
-        <Ionicons name={icon} size={18} color="#FFFFFF" />
-      </View>
-
-      <Ionicons
-        name={icon}
-        size={110}
-        color="rgba(255,255,255,0.22)"
-        style={styles.bigIcon}
+      <Image
+        source={image}
+        style={horizontal ? styles.imageHorizontal : styles.image}
+        resizeMode="contain"
       />
 
-      <View>
+      <View style={horizontal && styles.textos}>
         <Text style={styles.title}>{title}</Text>
         {!!subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
       </View>
@@ -38,23 +47,31 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
 
+  cardHorizontal: {
+    width: "100%",
+    height: 90,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gap: 16,
+  },
+
   dimmed: {
     opacity: 0.6,
   },
 
-  iconBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,0.28)",
-    alignItems: "center",
-    justifyContent: "center",
+  image: {
+    width: 64,
+    height: 64,
   },
 
-  bigIcon: {
-    position: "absolute",
-    right: -14,
-    bottom: -12,
+  imageHorizontal: {
+    width: 60,
+    height: 60,
+  },
+
+  textos: {
+    flex: 1,
   },
 
   title: {
