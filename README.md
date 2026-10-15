@@ -74,6 +74,12 @@ O EcoTrack integra um aplicativo mobile com um sistema de visão computacional e
 
 ---
 
+# Modelo de Negócio
+
+O modelo de negócio do EcoTrack (proposta de valor, personas, modelo de receita, custos, riscos, diferenciais e impacto esperado para a Motiva) está documentado na pasta [`docs/`](docs/), no arquivo [`docs/MODELO_DE_NEGOCIO.md`](docs/MODELO_DE_NEGOCIO.md).
+
+---
+
 # Funcionalidades Implementadas (Status Atual)
 
 ## Autenticação ✅
@@ -246,6 +252,9 @@ context/
 │   └── MockDataContext.js
 │
 data/                          (mocks por domínio, incluindo mockOrdemServico.js)
+│
+docs/
+│   └── MODELO_DE_NEGOCIO.md   (modelo de negócio e viabilidade)
 │
 utils/
 │   ├── ordemServico.js        (status, sugestões RF03, integração OS x mapa)
