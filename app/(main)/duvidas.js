@@ -5,6 +5,8 @@ import AssistantInfo from "../../components/AssistantInfo";
 import ChatBubble from "../../components/ChatBubble";
 import ChatInput from "../../components/ChatInput";
 
+const API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+
 export default function Duvidas() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -33,10 +35,13 @@ export default function Duvidas() {
     setIsLoading(true);
 
     try {
-      // Chave gerada no seu vídeo
-      const API_KEY = "SUA_API_KEY"; 
-      
-      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent', {
+      // A chave vem da variável de ambiente (arquivo .env local ou EAS Build),
+      // nunca fica escrita no código. Sem chave, usamos direto o fallback.
+      if (!API_KEY) {
+        throw new Error("EXPO_PUBLIC_GEMINI_API_KEY não configurada");
+      }
+
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -76,7 +81,7 @@ export default function Duvidas() {
     } catch (error) {
       console.warn("Fallback ativado devido a erro na API:", error.message);
       
-      // Resposta simulada para evitar crash no vídeo caso o Google retorne erro 503 (High Demand)
+      // Resposta local para o app não travar se a API estiver sem chave, sem rede ou em alta demanda (503)
       const fallbackMsg = {
         id: (Date.now() + 1).toString(),
         type: "bot",
