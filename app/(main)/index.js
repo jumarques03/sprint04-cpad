@@ -93,8 +93,7 @@ export default function Inicio() {
                 title="INICIAR"
                 subtitle={subtituloIniciar}
                 image={require("../../assets/iconeIniciar.png")}
-                color="#0A3D91"
-                dimmed={emAndamento}
+                color="#3B6EF0"
                 onPress={() => router.push("/(main)/ordem-servico")}
               />
 
@@ -102,8 +101,7 @@ export default function Inicio() {
                 title="CONCLUIR"
                 subtitle={emAndamento ? "Registrar roçada" : "Inicie uma ordem"}
                 image={require("../../assets/iconeConcluido.png")}
-                color="#0F6B3A"
-                dimmed={!emAndamento}
+                color="#14A057"
                 onPress={() => router.push("/(main)/concluir-ordem")}
               />
             </View>
@@ -113,7 +111,7 @@ export default function Inicio() {
                 title="HISTÓRICO"
                 subtitle="Ordens finalizadas e evidências"
                 image={require("../../assets/iconeHistorico.png")}
-                color="#2F3040"
+                color="#7B61FF"
                 horizontal
                 onPress={() => router.push("/(main)/historico-ordens")}
               />

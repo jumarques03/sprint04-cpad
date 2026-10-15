@@ -7,7 +7,6 @@ export default function OrderCard({
   image,
   color,
   onPress,
-  dimmed,
   horizontal,
   style,
 }) {
@@ -17,7 +16,6 @@ export default function OrderCard({
         styles.card,
         horizontal && styles.cardHorizontal,
         { backgroundColor: color },
-        dimmed && styles.dimmed,
         style,
       ]}
       onPress={onPress}
@@ -54,10 +52,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     gap: 16,
-  },
-
-  dimmed: {
-    opacity: 0.6,
   },
 
   image: {
