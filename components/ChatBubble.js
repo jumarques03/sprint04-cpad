@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import MarkdownText from "./MarkdownText";
 
 export default function ChatBubble({ message, time, type = "bot" }) {
   const isUser = type === "user";
@@ -7,9 +8,12 @@ export default function ChatBubble({ message, time, type = "bot" }) {
   return (
     <View style={[styles.wrapper, isUser ? styles.userWrapper : styles.botWrapper]}>
       <View style={[styles.bubble, isUser ? styles.userBubble : styles.botBubble]}>
-        <Text style={[styles.message, isUser ? styles.userText : styles.botText]}>
-          {message}
-        </Text>
+        {isUser ? (
+          <Text style={[styles.message, styles.userText]}>{message}</Text>
+        ) : (
+          // As respostas do assistente chegam em Markdown (negrito, listas...)
+          <MarkdownText style={[styles.message, styles.botText]}>{message}</MarkdownText>
+        )}
 
         <Text style={[styles.time, isUser ? styles.userTime : styles.botTime]}>
           {time}
