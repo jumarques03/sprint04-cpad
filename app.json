@@ -18,7 +18,10 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "package": "br.com.fiap.ecotrack",
-      "versionCode": 1
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,6 +38,13 @@
           "photosPermission": "O EcoTrack acessa suas fotos para anexar a comprovação da roçada."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "25f77068-a3db-4036-97da-4b744f3ef89f"
+      }
+    },
+    "owner": "jumarques03"
   }
 }
