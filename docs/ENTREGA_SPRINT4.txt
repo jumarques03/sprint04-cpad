@@ -12,7 +12,8 @@ REPOSITORIO GITHUB (README consolidado)
 https://github.com/jumarques03/sprint04-cpad
 
 APK PARA DOWNLOAD
-[PREENCHER: link do APK (GitHub Releases ou Google Drive)]
+Pagina da release: https://github.com/jumarques03/sprint04-cpad/releases/tag/v1.0.0
+Download direto: https://github.com/jumarques03/sprint04-cpad/releases/download/v1.0.0/application-580197b5-7aa2-4bac-b850-3cd9b01ec8fb.apk
 
 VIDEO DE PITCH E DEMONSTRACAO (YouTube, nao listado)
 [PREENCHER: link do video]

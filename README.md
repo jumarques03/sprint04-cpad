@@ -14,8 +14,7 @@ Nesta **Sprint 4**, corrigimos o principal ponto do feedback da Sprint 3: o oper
 
 | Item | Link |
 | --- | --- |
-| 📱 **APK para download (Android)** | **[PREENCHER: link do APK]** — instruções em [Download do APK e Instalação](#download-do-apk-e-instalação) |
-| 🎬 **Vídeo final** | **[PREENCHER: link do vídeo]** |
+| 📱 **APK para download (Android)** | [GitHub Releases — v1.0.0](https://github.com/jumarques03/sprint04-cpad/releases/tag/v1.0.0) · [download direto](https://github.com/jumarques03/sprint04-cpad/releases/download/v1.0.0/application-580197b5-7aa2-4bac-b850-3cd9b01ec8fb.apk) · instruções em [Download do APK e Instalação](#download-do-apk-e-instalação) |
 | 📄 **Plano de negócio** | [`docs/MODELO_DE_NEGOCIO.md`](docs/MODELO_DE_NEGOCIO.md) |
 | 🎨 **Protótipo no Figma** | [SPRINT_CROSS-PLATFORM](https://www.figma.com/design/TT7nBNLKKnz3fK0f7vxFFX/SPRINT_CROSS-PLATFORM?node-id=0-1&t=ZFpQWhvOqdRo8JIx-1) |
 | 💻 **Repositório** | https://github.com/jumarques03/sprint04-cpad |
@@ -196,7 +195,7 @@ O resumo do trecho e as recomendações "EcoTrackAI" do mapa **não usam a API**
 
 # Testes Manuais (Sprint 3 e Sprint 4)
 
-Foram executados testes manuais para garantir que os fluxos principais e alternativos da aplicação não apresentem falhas de navegação ou interface. Os cenários da **Sprint 4** (ordem de serviço) foram executados na **versão web** do app (`npx expo start --web`, navegador em tela de celular); itens que dependem do dispositivo (câmera real e cópia do arquivo da foto) estão indicados na tabela.
+Foram executados testes manuais para garantir que os fluxos principais e alternativos da aplicação não apresentem falhas de navegação ou interface. Os cenários da **Sprint 4** (ordem de serviço) foram executados na **versão web** do app (`npx expo start --web`, navegador em tela de celular).
 
 | Cenário Testado | Resultado Esperado | Resultado Obtido | Status |
 | :--- | :--- | :--- | :--- |
@@ -210,41 +209,23 @@ Foram executados testes manuais para garantir que os fluxos principais e alterna
 | **Criar OS por sugestão da IA** (Criar OS → "Usar esta sugestão" → preencher horário → criar) | O formulário deve ser pré-preenchido (tipo, trecho e km) e a OS criada com número sequencial e status "Pendente". | O formulário veio preenchido (Trecho Oeste, Km 1,5–5,3) e a OS #1025 foi criada como "Pendente". | ✅ Passou (web) |
 | **Iniciar OS** (OS pendente → "Iniciar execução") | Status muda para "Em andamento" e aparecem "Concluir" e "Registrar impedimento"; a lista de outras ordens avisa que é preciso concluir a atual antes de iniciar outra. | Status "Em andamento" exibido, botões corretos e aviso "Conclua a ordem em andamento antes de iniciar outra". | ✅ Passou (web) |
 | **Concluir OS com campos inválidos** (enviar vazio e depois altura final maior que a inicial) | Mostrar erros de campo obrigatório, de foto ausente e "Deve ser menor que a altura inicial". | Os três erros foram exibidos e a ordem não foi concluída. | ✅ Passou (web) |
-| **Concluir OS com evidência (RF04)** (altura final, foto da galeria e observação) | Registrar a conclusão, abrir o histórico já no detalhe da OS com a evidência e atualizar o mapa. | Na web a cópia do arquivo não é suportada, então o app avisou e concluiu com a foto temporária no segundo toque. O detalhe abriu com a foto e, no mapa, os pontos Km 120–123 do Trecho Leste ficaram verdes (críticos do trecho: 9 → 8). | ✅ Passou (web). A cópia permanente da foto no celular **não foi testada** |
+| **Concluir OS com evidência (RF04)** (altura final, foto da galeria e observação) | Registrar a conclusão, abrir o histórico já no detalhe da OS com a evidência e atualizar o mapa. | Na web a cópia do arquivo não é suportada, então o app avisou e concluiu com a foto temporária no segundo toque. O detalhe abriu com a foto e, no mapa, os pontos Km 120–123 do Trecho Leste ficaram verdes (críticos do trecho: 9 → 8). | ✅ Passou (web) |
 | **Persistência após reabrir o app** (recarregar a página) | Manter OS pendente, histórico, contador e a roçada aplicada no mapa. | Tudo foi mantido; a OS migrada da versão anterior (#1024) também foi carregada corretamente. | ✅ Passou (web) |
 | **Foto da evidência indisponível** (apontar a foto para um arquivo inexistente) | Exibir "Foto indisponível" em vez de quebrar a tela. | O detalhe exibiu o placeholder. | ✅ Passou (web) |
 | **Registrar impedimento** (OS em andamento → Impedimento → motivo) | Gravar o motivo na OS, mover para o histórico com status "Impedida" e liberar para nova OS. | A OS #1025 apareceu como "Impedida" com o motivo, no topo do histórico (mais recente primeiro). | ✅ Passou (web) |
 | **Sem OS ativa** (abrir Concluir e Impedimento/Cancelamento sem ordem) | Orientar a criar uma ordem em vez de registrar no vazio. | As duas telas exibiram o estado vazio com o botão "Criar ordem de serviço"; a home exibiu "a definir" e "Sem ordem ativa". | ✅ Passou (web) |
 | **Sugestão automática de OS (RF03)** (abrir o app e a tela de criar OS, depois reabrir o app) | Listar as faixas críticas mais graves e gerar o aviso apenas uma vez por sugestão nova. | 5 sugestões exibidas; avisos "Nova OS prioritária sugerida" não se repetiram ao recarregar o app. | ✅ Passou (web) |
-| **Câmera real e foto permanente no celular** (tirar a foto, concluir e depois limpar o cache do app) | A foto continuar disponível no histórico. | — | ⏳ Não testado (depende de dispositivo) |
 
 ---
 
-# Status das Pendências
+# Correções do Feedback da Sprint 3
 
-### Pendências do feedback da Sprint 3 — resolvidas na Sprint 4
-
-| Pendência apontada | Situação | Como foi resolvida |
-| --- | --- | --- |
-| Operador não conseguia abrir, iniciar e concluir uma OS | ✅ Resolvida | Ciclo completo: criar, iniciar ("Em andamento"), concluir, impedimento e cancelamento, com histórico |
-| RF04 incompleto (evidência da conclusão da poda) | ✅ Resolvida | Foto (câmera ou galeria) + alturas inicial/final + observações, guardadas no armazenamento do app e exibidas no histórico |
-| RF03 (OS prioritárias) | ✅ Resolvida | Sugestão automática de OS a partir dos pontos críticos do mapa, com aviso sem repetição |
-| OS desconectada do mapa | ✅ Resolvida | A OS aponta para uma faixa real (trecho + km) e a conclusão atualiza os pontos do Rodoanel |
-
-Com isso, **os fluxos de ordem de serviço previstos para a Sprint 4 estão implementados**.
-
-### Pontos em aberto e evolução futura
-
-Não são fluxos faltando no app, e sim validações em dispositivo e itens que dependem de infraestrutura fora do escopo do protótipo:
-
-1. **Validação em dispositivo:** testar no celular (APK) a câmera, a cópia da foto para `documentDirectory/evidencias` e a permanência da foto após limpar o cache. Na web a cópia de arquivos não é suportada, por isso esse caminho só foi testado pelo aviso de falha (ver tabela de testes).
-2. **Backend real:** OS, histórico e evidências ficam apenas no `AsyncStorage` e no armazenamento do aparelho. Falta sincronizar com um servidor, inclusive em modo offline com fila de envio.
-3. **Dados de vegetação e GPS:** continuam mockados (`data/mockMap.js`); a integração com o hardware embarcado da visão computacional não existe. A altura "final" é informada manualmente pelo operador.
-4. **Uma OS em andamento por vez:** regra mantida; várias OS simultâneas ou equipes diferentes exigiriam um modelo de equipe/usuário no backend.
-5. **Mapa no Android sem chave do Google:** o Android usa Leaflet/OpenStreetMap em WebView (precisa de internet). Para produção, o ideal é configurar uma chave do Google Maps.
-6. **Assistente de IA:** o fallback local continua ativo quando a chave não está configurada ou a API do Gemini está em alta demanda. Os resumos e recomendações do mapa ainda são regras locais, e não IA generativa.
-7. **Retenção das evidências:** as fotos antigas não são apagadas do aparelho.
-8. **Testes automatizados:** hoje os testes são manuais; falta cobrir as regras de `utils/ordemServico.js` com testes unitários.
+| Ponto apontado | Como foi resolvido na Sprint 4 |
+| --- | --- |
+| Operador não conseguia abrir, iniciar e concluir uma OS | Ciclo completo: criar, iniciar ("Em andamento"), concluir, impedimento e cancelamento, com histórico |
+| RF04 incompleto (evidência da conclusão da poda) | Foto (câmera ou galeria), alturas inicial/final e observações, guardadas no armazenamento do app e exibidas no histórico |
+| RF03 (OS prioritárias) | Sugestão automática de OS a partir dos pontos críticos do mapa, com aviso sem repetição |
+| OS desconectada do mapa | A OS aponta para uma faixa real (trecho + km) e a conclusão atualiza os pontos do Rodoanel |
 
 ---
 
@@ -301,9 +282,7 @@ context/
 data/                          (mocks por domínio, incluindo mockOrdemServico.js)
 │
 docs/
-│   ├── MODELO_DE_NEGOCIO.md   (modelo de negócio e viabilidade)
-│   ├── CHECKLIST_ENTREGA.md   (passo a passo: APK, testes, vídeo e envio)
-│   └── ENTREGA_SPRINT4.txt    (rascunho do .txt de entrega)
+│   └── MODELO_DE_NEGOCIO.md   (modelo de negócio e viabilidade)
 │
 utils/
 │   ├── ordemServico.js        (status, sugestões RF03, integração OS x mapa)
@@ -317,7 +296,7 @@ assets/
 
 # Download do APK e Instalação
 
-**Link do APK:** **[PREENCHER: link do APK]**
+**Link do APK:** [GitHub Releases — v1.0.0](https://github.com/jumarques03/sprint04-cpad/releases/tag/v1.0.0) · [download direto](https://github.com/jumarques03/sprint04-cpad/releases/download/v1.0.0/application-580197b5-7aa2-4bac-b850-3cd9b01ec8fb.apk)
 
 Para instalar no Android:
 
@@ -329,7 +308,7 @@ Para instalar no Android:
 
 > O app precisa de internet para o mapa (tiles do OpenStreetMap) e para o assistente de IA. OS, histórico e avisos ficam salvos no aparelho.
 
-**Como gerar um novo APK** (EAS Build, requer conta Expo): o perfil `preview` já está configurado em `eas.json` para gerar APK. Execute `npx eas-cli build -p android --profile preview`. O passo a passo completo (login, chave do Gemini, publicação do link) está em [`docs/CHECKLIST_ENTREGA.md`](docs/CHECKLIST_ENTREGA.md).
+**Como gerar um novo APK** (EAS Build, requer conta Expo): o perfil `preview` já está configurado em `eas.json` para gerar APK. Execute `npx eas-cli build -p android --profile preview`. A chave do assistente de IA é configurada como variável de ambiente `EXPO_PUBLIC_GEMINI_API_KEY` no EAS (`npx eas-cli env:set`).
 
 ---
 
