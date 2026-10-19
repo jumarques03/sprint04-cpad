@@ -15,6 +15,7 @@ Nesta **Sprint 4**, corrigimos o principal ponto do feedback da Sprint 3: o oper
 | Item | Link |
 | --- | --- |
 | 📱 **APK para download (Android)** | [GitHub Releases — v1.0.0](https://github.com/jumarques03/sprint04-cpad/releases/tag/v1.0.0) · [download direto](https://github.com/jumarques03/sprint04-cpad/releases/download/v1.0.0/application-580197b5-7aa2-4bac-b850-3cd9b01ec8fb.apk) · instruções em [Download do APK e Instalação](#download-do-apk-e-instalação) |
+| 🎬 **Vídeo de apresentação (pitch e demonstração)** | [Assistir no YouTube](https://youtu.be/d0_TN1BjS0Y) |
 | 📄 **Plano de negócio** | [`docs/MODELO_DE_NEGOCIO.md`](docs/MODELO_DE_NEGOCIO.md) |
 | 🎨 **Protótipo no Figma** | [SPRINT_CROSS-PLATFORM](https://www.figma.com/design/TT7nBNLKKnz3fK0f7vxFFX/SPRINT_CROSS-PLATFORM?node-id=0-1&t=ZFpQWhvOqdRo8JIx-1) |
 | 💻 **Repositório** | https://github.com/jumarques03/sprint04-cpad |
